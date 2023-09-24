@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from api.main import app
+from cr_scraper.main import app
 
 client = TestClient(app)
 
