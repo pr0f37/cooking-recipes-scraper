@@ -1,0 +1,30 @@
+from cr_scraper.scraper.model import Recipe, RecipesSource
+
+
+def test_source_not_recognised():
+    test_source = RecipesSource.which_source("test")
+    assert test_source is None
+
+
+def test_source_recognised():
+    test_source = RecipesSource.which_source("kuchnialidla.pl")
+    assert test_source is RecipesSource.LIDL
+
+
+def test_source_recognised_uppercase():
+    test_source = RecipesSource.which_source("KUCHNIALIDLA.PL")
+    assert test_source is RecipesSource.LIDL
+
+
+def test_source_recognised_longer_url():
+    test_source = RecipesSource.which_source("https://KUCHNIALIDLA.PL/przepisy")
+    assert test_source is RecipesSource.LIDL
+
+
+def test_recipe_class_mandatory_elements():
+    recipe = Recipe(
+        url="test_url",
+        ingredients=["ingredient1", "ingredient2"],
+        title="test_title",
+    )
+    assert recipe is not None

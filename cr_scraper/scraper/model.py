@@ -7,8 +7,8 @@ class Recipe:
     url: str
     ingredients: list[str]
     title: str
-    time: str
-    difficulty: str
+    time: None | str = None
+    difficulty: None | str = None
 
 
 class RecipesSource(Enum):
