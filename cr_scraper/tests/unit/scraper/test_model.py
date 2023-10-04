@@ -1,9 +1,16 @@
+from pytest import raises
+
+from cr_scraper.scraper.exceptions import SourceNotRecognisedError
 from cr_scraper.scraper.model import Recipe, RecipesSource
 
 
 def test_source_not_recognised():
-    test_source = RecipesSource.which_source("test")
-    assert test_source is None
+    with raises(SourceNotRecognisedError) as ex_info:
+        RecipesSource.which_source("test")
+    assert (
+        ex_info.value.msg
+        == "Page containing the resource is not scrapable. Try different web page"
+    )
 
 
 def test_source_recognised():

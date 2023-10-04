@@ -1,52 +1,20 @@
-from abc import ABCMeta, abstractmethod
-
-import requests
 from bs4 import BeautifulSoup
+from requests import get
+from requests.exceptions import MissingSchema
 
+from cr_scraper.scraper.exceptions import InvalidURLError
 from cr_scraper.scraper.model import Recipe, RecipesSource
-
-
-class RecipeComponents(ABCMeta):
-    @abstractmethod
-    def __init__(self, parser: BeautifulSoup) -> None:
-        self.parser = parser
-
-    @abstractmethod
-    def get_recipes_urls(self) -> list[str]:
-        raise NotImplementedError
-
-    @abstractmethod
-    def get_title(self) -> str:
-        raise NotImplementedError
-
-    @abstractmethod
-    def get_ingredients(self) -> list[str]:
-        raise NotImplementedError
-
-
-class LidlComponents(RecipeComponents):
-    def __init__(self, parser: BeautifulSoup) -> None:
-        super().__init__(parser)
-
-    def get_recipes_urls(self) -> list[str]:
-        recipes = self.parser.find_all("a", class_="description")
-        return [recipe["href"] for recipe in recipes]
-
-    def get_title(self) -> str:
-        return self._get_details().h1.text
-
-    def get_ingredients(self) -> list[str]:
-        ingredients = self._get_details().find("div", class_="skladniki")
-        return [li.text for li in ingredients.find_all("li")]
-
-    def _get_details(self):
-        return self.parser.find("div", id="details")
+from cr_scraper.scraper.recipe_components import LidlComponents, RecipeComponents
 
 
 def recipe_components_factory(url: str) -> RecipeComponents:
-    r = requests.get(url)
+    source = RecipesSource.which_source(url)
+    try:
+        r = get(url)
+    except MissingSchema:
+        raise InvalidURLError(url)
     parser = BeautifulSoup(r.content, "html.parser")
-    if RecipesSource.which_source(url) is RecipesSource.LIDL:
+    if source is RecipesSource.LIDL:
         return LidlComponents(parser)
 
 

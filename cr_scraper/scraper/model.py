@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from enum import Enum
 
+from cr_scraper.scraper.exceptions import InvalidURLError, SourceNotRecognisedError
+
 
 @dataclass
 class Recipe:
@@ -16,6 +18,9 @@ class RecipesSource(Enum):
 
     @classmethod
     def which_source(cls, url: str):
-        if cls.LIDL.value in url.lower():
-            return cls.LIDL
-        return None
+        try:
+            if cls.LIDL.value in url.lower():
+                return cls.LIDL
+        except AttributeError:
+            raise InvalidURLError(url)
+        raise SourceNotRecognisedError()
