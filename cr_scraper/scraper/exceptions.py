@@ -15,3 +15,9 @@ class SourceNotRecognisedError(ScraperError):
             "Page containing the resource is not scrapable. Try different web page"
         )
         super().__init__(self.msg, *args)
+
+
+class HTTPWebPageError(ScraperError):
+    def __init__(self, url: str, status_code: int, *args: object) -> None:
+        self.msg = f"The web page: {url} returned unexpected status code: {status_code}"
+        super().__init__(self.msg, *args)

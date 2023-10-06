@@ -1214,7 +1214,7 @@ Jak zrobić zjadalny ogr&oacute;d z resztek warzyw i zi&oacute;ł?</p>
             </span>
 
             <p class="category">Kinga Paruzel</p>
-            <h1>Wege placki z tartych warzyw</h1>
+            <h1>test_title</h1>
 
             <div class="article">
                 Pyszna alternatywa dla znanych i lubianych placków ziemniaczanych, czyli placki z tartej marchewki i cukinii. To naprawdę prosty w przygotowaniu, szybki obiad.
@@ -1228,24 +1228,15 @@ Jak zrobić zjadalny ogr&oacute;d z resztek warzyw i zi&oacute;ł?</p>
                     <h3>Składniki</h3>
                                 <h2>PLACKI Z TARTYCH WARZYW</h2>
                             <ul>
-                                    <li>cukinia - 1 szt.</li>
-                                    <li>marchew - 3 szt.</li>
-                                    <li>ząbek czosnku - 2 szt.</li>
-                                    <li>mąka pszenna - 100 g</li>
-                                    <li>jajko - 3 szt.</li>
-                                    <li>cebula dymka - 2 szt.</li>
-                                    <li>oliwa z oliwek - 4 łyżki</li>
-                                    <li>s&#243;l - 0,25 łyżeczki</li>
-                                    <li>pieprz czarny - 1 szczypta</li>
+                                    <li>ingredient_1.1</li>
+                                    <li>ingredient_1.2</li>
+
                             </ul>
                                 <h2>SOS CHRZANOWO-JOGURTOWY</h2>
                             <ul>
-                                    <li>skyr naturalny - 300 g</li>
-                                    <li>chrzan - 2 łyżki</li>
-                                    <li>oliwa z oliwek - 1 łyżka</li>
-                                    <li>s&#243;l - 1 szczypta</li>
-                                    <li>pieprz czarny - 1 szczypta</li>
-                                    <li>świeży koperek - 1 pęczek</li>
+                                    <li>ingredient_2.1</li>
+                                    <li>ingredient_2.2</li>
+                                    <li>ingredient_2.3</li>
                             </ul>
 
 
