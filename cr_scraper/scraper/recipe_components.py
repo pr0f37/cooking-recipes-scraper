@@ -1,9 +1,9 @@
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 
 from bs4 import BeautifulSoup
 
 
-class RecipeComponents(ABCMeta):
+class RecipeComponents(ABC):
     @abstractmethod
     def __init__(self, parser: BeautifulSoup) -> None:
         self.parser = parser

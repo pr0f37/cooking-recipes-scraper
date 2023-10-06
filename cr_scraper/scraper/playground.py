@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 r = requests.get("https://kuchnialidla.pl/wege-placki-z-tartych-warzyw")
 soup = BeautifulSoup(r.content, "html.parser")
 
-print(soup.prettify())
+# print(soup.prettify())
 
 # %%
 details = soup.find("div", id="details")
