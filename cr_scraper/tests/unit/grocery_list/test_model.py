@@ -53,6 +53,13 @@ def test_add_groceries_with_different_units():
     assert g2 + g1 == GroceryListElement("name1", 1001, "g")
 
 
+def test_add_groceries_with_different_nonconvertible_units():
+    g1 = GroceryListElement("name1", 1, "kg")
+    g2 = GroceryListElement("name1", 1, "ml")
+    assert g1 + g2 == [g1, g2]
+    assert g2 + g1 == [g2, g1]
+
+
 def test_converting_units():
     g = GroceryListElement("name1", 1, "kg")
     assert g._can_convert("g") is True
@@ -61,6 +68,21 @@ def test_converting_units():
 def test_cannot_convert_units():
     g = GroceryListElement("name1", 1, "ml")
     assert g._can_convert("g") is False
+
+
+def test_convert_groceries():
+    _Unit = GroceryListElement.Unit
+    ml = GroceryListElement("name1", 1, "ml")
+    ml.convert_to(_Unit.L)
+    assert ml == GroceryListElement("name1", 0.001, "l")
+    li = GroceryListElement("name1", 1, "l")
+    li.convert_to(_Unit.ML)
+    assert li == GroceryListElement("name1", 1000, "ml")
+    kg = GroceryListElement("name1", 1, "kg")
+    kg.convert_to(_Unit.G)
+    assert kg == GroceryListElement("name1", 1000, "g")
+    kg.convert_to(_Unit.MG)
+    assert kg == GroceryListElement("name1", 1000000, "mg")
 
 
 def test_unit_init():

@@ -1,4 +1,5 @@
 from collections import defaultdict
+from copy import copy
 from enum import StrEnum, auto
 
 from cr_scraper.grocery_list.exceptions import (
@@ -28,6 +29,8 @@ class GroceryListElement:
         Unit.KG: {Unit.G: 1000, Unit.MG: 1000000},
         Unit.G: {Unit.KG: 0.001, Unit.MG: 1000},
         Unit.MG: {Unit.KG: 0.000001, Unit.G: 0.001},
+        Unit.L: {Unit.ML: 1000},
+        Unit.ML: {Unit.L: 0.001},
     }
 
     def __init__(self, name: str, quantity: float, unit: str):
@@ -43,13 +46,13 @@ class GroceryListElement:
     def __add__(self, other):
         if not isinstance(other, GroceryListElement) or self.name != other.name:
             raise MismatchError
-        if self.unit == other.unit or self._can_convert(other.unit):
-            quantity = self.quantity + other.quantity * self._conversion_factor(
-                other.unit
-            )
-            return GroceryListElement(name=self.name, quantity=quantity, unit=self.unit)
-        else:
+        try:
+            converted = copy(other)
+            converted.convert_to(self.unit)
+        except CannotConvertError:
             return [self, other]
+        quantity = self.quantity + converted.quantity
+        return GroceryListElement(name=self.name, quantity=quantity, unit=self.unit)
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, GroceryListElement):
@@ -61,7 +64,7 @@ class GroceryListElement:
         )
 
     def _can_convert(self, unit: Unit):
-        return self.unit in self._UNIT_CONVERSION.get(unit, {})
+        return self.unit in self._UNIT_CONVERSION.get(unit, {}) or self.unit == unit
 
     def _conversion_factor(self, unit: Unit):
         if self.unit == unit:
@@ -70,8 +73,8 @@ class GroceryListElement:
 
     def convert_to(self, unit: Unit):
         if self._can_convert(unit):
+            self.quantity /= self._conversion_factor(unit)
             self.unit = unit
-            self.quantity *= self._conversion_factor(unit)
         else:
             raise CannotConvertError
 
