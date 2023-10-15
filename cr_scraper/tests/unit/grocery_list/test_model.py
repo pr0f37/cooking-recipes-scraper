@@ -1,6 +1,10 @@
 import pytest
 
-from cr_scraper.grocery_list.exceptions import MismatchError, NegativeQuantityError
+from cr_scraper.grocery_list.exceptions import (
+    CannotConvertError,
+    MismatchError,
+    NegativeQuantityError,
+)
 from cr_scraper.grocery_list.model import GroceryList, GroceryListElement
 
 
@@ -85,11 +89,21 @@ def test_convert_groceries():
     assert kg == GroceryListElement("name1", 1000000, "mg")
 
 
+def test_convert_groceries_error():
+    _Unit = GroceryListElement.Unit
+    ml = GroceryListElement("name1", 1, "ml")
+    with pytest.raises(CannotConvertError):
+        ml.convert_to(_Unit.G)
+    kg = GroceryListElement("name1", 1, "kg")
+    with pytest.raises(CannotConvertError):
+        kg.convert_to(_Unit.L)
+
+
 def test_unit_init():
     _Unit = GroceryListElement.Unit
     assert _Unit("kg") is _Unit.KG
     assert _Unit("KG") is _Unit.KG
-    assert _Unit("KG") == _Unit("kg")
+    assert _Unit("KG") is _Unit("kg")
     assert "test" != _Unit.KG
     with pytest.raises(ValueError):
         _Unit("test")
