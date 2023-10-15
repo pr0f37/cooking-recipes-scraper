@@ -1,7 +1,11 @@
 from collections import defaultdict
 from enum import StrEnum, auto
 
-from cr_scraper.grocery_list.exceptions import NegativeQuantityError, TermMismatchError
+from cr_scraper.grocery_list.exceptions import (
+    CannotConvertError,
+    MismatchError,
+    NegativeQuantityError,
+)
 
 
 class GroceryListElement:
@@ -38,18 +42,38 @@ class GroceryListElement:
 
     def __add__(self, other):
         if not isinstance(other, GroceryListElement) or self.name != other.name:
-            raise TermMismatchError
+            raise MismatchError
         if self.unit == other.unit or self._can_convert(other.unit):
-            quantity = self.quantity + self._convert(other.quantity)
+            quantity = self.quantity + other.quantity * self._conversion_factor(
+                other.unit
+            )
             return GroceryListElement(name=self.name, quantity=quantity, unit=self.unit)
         else:
             return [self, other]
 
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, GroceryListElement):
+            raise MismatchError
+
+        return all(
+            getattr(self, elem) == getattr(other, elem)
+            for elem in self.__dict__.keys() | other.__dict__.keys()
+        )
+
     def _can_convert(self, unit: Unit):
         return self.unit in self._UNIT_CONVERSION.get(unit, {})
 
-    def _convert(self, unit: Unit):
-        raise NotImplementedError
+    def _conversion_factor(self, unit: Unit):
+        if self.unit == unit:
+            return 1
+        return self._UNIT_CONVERSION[unit][self.unit]
+
+    def convert_to(self, unit: Unit):
+        if self._can_convert(unit):
+            self.unit = unit
+            self.quantity *= self._conversion_factor(unit)
+        else:
+            raise CannotConvertError
 
 
 class GroceryList:

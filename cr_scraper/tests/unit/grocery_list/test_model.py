@@ -1,6 +1,6 @@
 import pytest
 
-from cr_scraper.grocery_list.exceptions import NegativeQuantityError, TermMismatchError
+from cr_scraper.grocery_list.exceptions import MismatchError, NegativeQuantityError
 from cr_scraper.grocery_list.model import GroceryList, GroceryListElement
 
 
@@ -37,7 +37,7 @@ def test_create_negative_quantity_element():
 
 
 def test_sum_up_different_objects():
-    with pytest.raises(TermMismatchError):
+    with pytest.raises(MismatchError):
         GroceryListElement("name1", 1, "kg") + 1
 
 
@@ -49,17 +49,18 @@ def test_add_groceries_of_the_same_kind():
 def test_add_groceries_with_different_units():
     g1 = GroceryListElement("name1", 1, "kg")
     g2 = GroceryListElement("name1", 1, "g")
-    assert g1 + g2 == [g1, g2]
+    assert g1 + g2 == GroceryListElement("name1", 1.001, "kg")
+    assert g2 + g1 == GroceryListElement("name1", 1001, "g")
 
 
 def test_converting_units():
     g = GroceryListElement("name1", 1, "kg")
-    assert g._can_convert("kg", "g") is True
+    assert g._can_convert("g") is True
 
 
 def test_cannot_convert_units():
     g = GroceryListElement("name1", 1, "ml")
-    assert g._can_convert("ml", "g") is False
+    assert g._can_convert("g") is False
 
 
 def test_unit_init():

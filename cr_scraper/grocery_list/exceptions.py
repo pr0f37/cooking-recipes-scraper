@@ -9,7 +9,13 @@ class NegativeQuantityError(GroceryElementError):
         super().__init__(self.msg, *args)
 
 
-class TermMismatchError(GroceryElementError):
+class MismatchError(GroceryElementError):
     def __init__(self, *args: object) -> None:
-        self.msg = "Two objects you are trying to sum up are not of the same kind"
+        self.msg = "Objects are not of the same kind"
+        super().__init__(*args)
+
+
+class CannotConvertError(GroceryElementError):
+    def __init__(self, *args: object) -> None:
+        self.msg = "Unit cannot be converted"
         super().__init__(*args)
