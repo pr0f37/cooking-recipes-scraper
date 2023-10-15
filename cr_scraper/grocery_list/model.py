@@ -40,13 +40,16 @@ class GroceryListElement:
         if not isinstance(other, GroceryListElement) or self.name != other.name:
             raise TermMismatchError
         if self.unit == other.unit or self._can_convert(other.unit):
-            quantity = self.quantity + other.quantity
+            quantity = self.quantity + self._convert(other.quantity)
             return GroceryListElement(name=self.name, quantity=quantity, unit=self.unit)
         else:
             return [self, other]
 
     def _can_convert(self, unit: Unit):
         return self.unit in self._UNIT_CONVERSION.get(unit, {})
+
+    def _convert(self, unit: Unit):
+        raise NotImplementedError
 
 
 class GroceryList:
