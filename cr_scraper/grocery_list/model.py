@@ -1,5 +1,4 @@
 from collections import defaultdict
-from copy import copy
 from dataclasses import dataclass
 from enum import StrEnum, auto
 
