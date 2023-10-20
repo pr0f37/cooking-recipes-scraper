@@ -5,6 +5,9 @@
   - [1.0 Add a recipe](#10-add-a-recipe)
   - [2.0 Display groceries list](#20-display-groceries-list)
 - [Architecture](#architecture)
+  - [C4 System diagram](#c4-system-diagram)
+  - [C4 Module diagram](#c4-module-diagram)
+  - [C4 Component diagram](#c4-component-diagram)
 
 ## Abstract
 
@@ -17,7 +20,7 @@ The following document describes technical and architectural design of the appli
 1. User opens add recipe page
 2. Application displays a page with a textfield for recipe url and `Add recipe` button
 3. User puts the recipe url in the textfield and clicks on the `Add recipe` button
-4. Application scrapes the web page under the url from the textfield
+4. Application reads the url provided by the user in the textfield and scrapes the web page located at the url
 5. Application saves the scraped recipe in the recipes list assigned to the user
 
 ### 2.0 Display groceries list
@@ -41,7 +44,7 @@ flowchart LR
 
 ## Architecture
 
-Mermaid diagrams describing the architecture to be added available below
+### C4 System diagram
 
 ```mermaid
     C4Context
@@ -59,3 +62,7 @@ Mermaid diagrams describing the architecture to be added available below
         Rel(ToDoList,UI, "Reads grocery list")
         Rel(User, ToDoList, "Uses")
 ```
+
+### C4 Module diagram
+
+### C4 Component diagram
