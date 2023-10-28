@@ -29,17 +29,16 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt
 
-# Switch to the non-privileged user to run the application.
-
-# Copy the source code into the container.
-COPY pyproject.toml .
-COPY cr_scraper cr_scraper
-RUN pip install .
+COPY pyproject.toml poetry.toml poetry.lock ./
+RUN poetry install --no-directory --only main
+RUN --mount=type=bind,source=requirements.txt,target=requirements.txt \
+    pip uninstall -y -r requirements.txt
 
 FROM python:${PYTHON_VERSION}-slim as build
 COPY --from=base /opt/venv /opt/venv
-WORKDIR /app
 
+WORKDIR /app
+COPY cr_scraper cr_scraper
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#user
 ARG UID=10001
@@ -57,5 +56,4 @@ USER appuser
 EXPOSE 8000
 
 ENV PATH="/opt/venv/bin:$PATH"
-# Run the application.
 CMD uvicorn 'cr_scraper.main:app' --host=0.0.0.0 --port=8000

@@ -1,0 +1,14 @@
+# https://docs.docker.com/compose/compose-file/
+# https://github.com/docker/awesome-compose
+services:
+  unit-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - ./test_results:/app/test_results/
+  lint-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    entrypoint: flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics

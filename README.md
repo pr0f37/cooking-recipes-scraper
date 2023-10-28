@@ -27,7 +27,7 @@ Set up local environment (ex. with [`pyenv`](https://github.com/pyenv/pyenv)/[`v
 $ pyenv virtualenv 3.11.5 cr-scraper
 $ pyenv shell cr-scraper
 $ pip install -r requirements.txt
-$ pip install .
+$ poetry install
 ```
 
 #### Running the application
