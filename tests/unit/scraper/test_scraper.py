@@ -11,7 +11,7 @@ from cr_scraper.scraper.exceptions import (
 from cr_scraper.scraper.recipe_components import LidlComponents
 from cr_scraper.scraper.scraper import recipe_components_factory
 
-with open("cr_scraper/tests/unit/scraper/static/lidl_recipe_dump", "rb") as f:
+with open("tests/unit/scraper/static/lidl_recipe_dump", "rb") as f:
     WEB_CONTENT = f.read()
 
 
