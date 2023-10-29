@@ -2,6 +2,21 @@
 
 The purpose of this application is to enable scraping the web pages containing recipes to obtain a list of cooking ingredients. Cooking ingredients then are grouped, added and combined into a grocery shopping list.
 
+- [Documentation](#documentation)
+- [Local setup](#local-setup)
+  - [Virtual environment](#virtual-environment)
+  - [Running the app](#running-the-app)
+    - [Manual Docker](#manual-docker)
+    - [Docker-compose](#docker-compose)
+    - [In a virtual environment](#in-a-virtual-environment)
+  - [Testing](#testing)
+    - [Manual Docker](#manual-docker-1)
+    - [Docker-compose](#docker-compose-1)
+    - [In a virtual environment](#in-a-virtual-environment-1)
+  - [Additional tools](#additional-tools)
+    - [Pre-commit](#pre-commit)
+- [License](#license)
+
 ## Documentation
 
 Additional project documentation available [here](/docs/index.md)
@@ -118,6 +133,67 @@ flake8 . --count --max-complexity=10 --max-line-length=127 --statistics
 ```
 
 ### Additional tools
+
+#### Pre-commit
+
+`pre-commit` can be used to automatically check and correct files before committing them.
+It comes pre-installed if you follow the [local setup virtual environments](#virtual-environment) instructions, otherwise you can install it with `pip`.
+
+To enable automatic integration with git you need to install the git hooks:
+
+```bash
+pre-commit install
+# pre-commit installed at .git/hooks/pre-commit
+```
+
+After doing this every time you commit all the staged files will be automatically tested by pre-commit. If pre-commit finds any malformed code it will correct it and ask you to stage and commit the corrected files again. For example:
+
+```bash
+$ git status
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   tests/test_main.py
+no changes added to commit (use "git add" and/or "git commit -a")
+$ git add .
+$ git commit -m "trying to commit malformed code"
+trim trailing whitespace.................................................Failed
+- hook id: trailing-whitespace
+- exit code: 1
+- files were modified by this hook
+
+Fixing tests/test_main.py
+
+fix end of files.........................................................Passed
+check for added large files..............................................Passed
+black....................................................................Failed
+- hook id: black
+- files were modified by this hook
+
+reformatted tests/test_main.py
+
+All done! ✨ 🍰 ✨
+1 file reformatted.
+
+$ git status
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   tests/test_main.py
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   tests/test_main.py
+
+$ git add .
+$ git commit -m "commit corrected code"
+trim trailing whitespace.................................................Passed
+fix end of files.........................................................Passed
+check for added large files..............................................Passed
+black....................................................................Passed
+[poetry fcbad3a] commit corrected code
+ 1 file changed, 4 insertions(+)
+```
 
 ## License
 
