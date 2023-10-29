@@ -11,5 +11,4 @@ def test_read_main():
     assert response.json() == {"message": "Hello World"}
 
 def test_fail():
-    assert 1==1
-
+    assert 1 != 1
