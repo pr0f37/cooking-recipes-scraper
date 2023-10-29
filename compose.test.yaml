@@ -1,14 +1,20 @@
 # https://docs.docker.com/compose/compose-file/
 # https://github.com/docker/awesome-compose
 services:
-  unit-test:
+  test:
     build:
       context: .
-      dockerfile: Dockerfile.test
+      dockerfile: docker/test/Dockerfile.test
     volumes:
       - ./test_results:/app/test_results/
-  lint-test:
+    entrypoint: pytest . --verbose --junit-xml=test_results/junit.xml
+  lint:
     build:
       context: .
-      dockerfile: Dockerfile.test
-    entrypoint: flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      dockerfile: docker/test/Dockerfile.test
+    entrypoint: ./entrypoint.flake8.sh
+  format:
+    build:
+      context: .
+      dockerfile: docker/test/Dockerfile.test
+    entrypoint: black . --check

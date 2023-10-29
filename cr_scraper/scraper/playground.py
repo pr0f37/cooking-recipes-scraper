@@ -1,4 +1,6 @@
 # %%
+import json
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -41,7 +43,6 @@ for recipe in recipes:
 
 
 # %%
-import json
 
 print(json.dumps(parsed_recipes))
 
