@@ -27,19 +27,15 @@ There are several methods to run your application available depending on your pa
 
 ### Virtual environment
 
-Application requires python `3.11`
+Application requires `python 3.11`
 
-The suggested method to set up local environment is with [`pyenv`](https://github.com/pyenv/pyenv)/[`virtualenv`](https://github.com/pyenv/pyenv-virtualenv) and [`poetry`](https://python-poetry.org/)
+The suggested method to set up local environment is with [`pyenv`](https://github.com/pyenv/pyenv)/[`virtualenv`](https://github.com/pyenv/pyenv-virtualenv) and [`poetry`](https://python-poetry.org/):
 
 ```bash
 pyenv virtualenv 3.11.5 cr-scraper
-
 pyenv local cr-scraper
-
 pyenv shell cr-scraper
-
 pip install -r requirements.txt
-
 poetry install
 ```
 
@@ -55,7 +51,6 @@ To build and run manually in docker
 
 ```bash
 docker build -t scraper -f docker/dev/Dockerfile .
-
 docker run -it --rm -p 8000:8000 scraper
 ```
 
@@ -126,9 +121,7 @@ Or check formatting:
 
 ```bash
 black . --check
-
 flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-
 flake8 . --count --max-complexity=10 --max-line-length=127 --statistics
 ```
 
@@ -146,17 +139,22 @@ pre-commit install
 # pre-commit installed at .git/hooks/pre-commit
 ```
 
-After doing this every time you commit all the staged files will be automatically tested by pre-commit. If pre-commit finds any malformed code it will correct it and ask you to stage and commit the corrected files again. For example:
+After doing this every time you commit all the staged files will be automatically tested by pre-commit. If pre-commit finds any malformed code it will correct it and ask you to stage and commit the corrected files again.
+
+For example:
 
 ```bash
 $ git status
+
 Changes not staged for commit:
   (use "git add <file>..." to update what will be committed)
   (use "git restore <file>..." to discard changes in working directory)
         modified:   tests/test_main.py
 no changes added to commit (use "git add" and/or "git commit -a")
+
 $ git add .
 $ git commit -m "trying to commit malformed code"
+
 trim trailing whitespace.................................................Failed
 - hook id: trailing-whitespace
 - exit code: 1
@@ -176,6 +174,7 @@ All done! ✨ 🍰 ✨
 1 file reformatted.
 
 $ git status
+
 Changes to be committed:
   (use "git restore --staged <file>..." to unstage)
         modified:   tests/test_main.py
@@ -187,6 +186,7 @@ Changes not staged for commit:
 
 $ git add .
 $ git commit -m "commit corrected code"
+
 trim trailing whitespace.................................................Passed
 fix end of files.........................................................Passed
 check for added large files..............................................Passed
