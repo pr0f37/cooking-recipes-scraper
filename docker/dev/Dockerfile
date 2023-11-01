@@ -1,44 +1,27 @@
 # syntax=docker/dockerfile:1
-
-# Comments are provided throughout this file to help you get started.
-# If you need more help, visit the Dockerfile reference guide at
-# https://docs.docker.com/engine/reference/builder/
-
 ARG PYTHON_VERSION=3.11.5
 FROM python:${PYTHON_VERSION}-slim as base
 
-# Prevents Python from writing pyc files.
-ENV PYTHONDONTWRITEBYTECODE=1
-
-# Keeps Python from buffering stdout and stderr to avoid situations where
-# the application crashes without emitting any logs due to buffering.
-ENV PYTHONUNBUFFERED=1
-
 WORKDIR /app
-
-
 RUN python -m venv /opt/venv
 # Make sure we use the virtualenv:
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Download dependencies as a separate step to take advantage of Docker's caching.
-# Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
-# Leverage a bind mount to requirements.txt to avoid having to copy them into
-# into this layer.
 RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt
-
-COPY pyproject.toml poetry.toml poetry.lock ./
-RUN poetry install --no-directory --only main
+RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    --mount=type=bind,source=poetry.toml,target=poetry.toml \
+    --mount=type=bind,source=poetry.lock,target=poetry.lock \
+    poetry install --no-directory --only main
 RUN --mount=type=bind,source=requirements.txt,target=requirements.txt \
-    pip uninstall -y -r requirements.txt
+    python -m pip uninstall -y -r requirements.txt
+
 
 FROM python:${PYTHON_VERSION}-slim as build
 COPY --from=base /opt/venv /opt/venv
-
-WORKDIR /app
-COPY cr_scraper cr_scraper
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#user
 ARG UID=10001
@@ -52,8 +35,8 @@ RUN adduser \
     appuser
 
 USER appuser
-# Expose the port that the application listens on.
+WORKDIR /app
+COPY cr_scraper cr_scraper
 EXPOSE 8000
-
 ENV PATH="/opt/venv/bin:$PATH"
 CMD uvicorn 'cr_scraper.main:app' --host=0.0.0.0 --port=8000
