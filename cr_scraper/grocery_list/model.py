@@ -17,7 +17,7 @@ class Unit(StrEnum):
     ML = auto()
 
     @classmethod
-    def _missing_(cls, value):
+    def _missing_(cls, value: str):
         value = value.lower()
         for member in cls:
             if member.value == value:

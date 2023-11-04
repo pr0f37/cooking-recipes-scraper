@@ -6,7 +6,8 @@ WORKDIR /app
 RUN python -m venv /opt/venv
 # Make sure we use the virtualenv:
 ENV PATH="/opt/venv/bin:$PATH"
-
+RUN apt-get update \
+    && apt-get -y install libpq-dev gcc
 RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt
