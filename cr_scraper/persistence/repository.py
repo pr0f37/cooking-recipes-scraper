@@ -6,13 +6,13 @@ from sqlalchemy.orm import Session, registry
 from cr_scraper.persistence.mapper import mapper_registry
 
 engine = create_engine(
-    "postgresql+psycopg2://postgres:postgres@0.0.0.0:5432/cr-scraper", echo=True
+    "postgresql+psycopg2://postgres:postgres@0.0.0.0:5432/cr-scraper"
 )
 
 
 class Repository(ABC):
     def __init__(self) -> None:
-        super().__init__()
+        raise NotImplementedError
 
     @abstractmethod
     def get():
