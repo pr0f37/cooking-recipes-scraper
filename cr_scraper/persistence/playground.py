@@ -87,11 +87,13 @@ metadata_obj = MetaData()
 some_table = Table("some_table", metadata_obj, autoload_with=engine)
 
 # %%
-from sqlalchemy import create_engine
+from sqlalchemy import MetaData, create_engine
 from sqlalchemy.orm import Session
 
 from cr_scraper.grocery_list.model import GroceryListElement, Unit
-from cr_scraper.persistence.model import metadata_obj
+from cr_scraper.persistence.mapper import mapper_registry
+
+metadata_obj = MetaData()
 
 engine = create_engine(
     "postgresql+psycopg2://postgres:postgres@0.0.0.0:5432/cr-scraper", echo=True
