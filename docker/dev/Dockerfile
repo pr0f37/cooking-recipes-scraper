@@ -40,4 +40,4 @@ WORKDIR /app
 COPY cr_scraper cr_scraper
 EXPOSE 8000
 ENV PATH="/opt/venv/bin:$PATH"
-CMD uvicorn 'cr_scraper.main:app' --host=0.0.0.0 --port=8000
+CMD uvicorn 'cr_scraper.api.main:app' --host=0.0.0.0 --port=8000
