@@ -17,7 +17,7 @@ with open("tests/unit/scraper/static/lidl_recipe_dump", "rb") as f:
 
 def test_recipe_components_factory_invalid_url():
     with raises(InvalidURLError):
-        recipe_components_factory(None)
+        recipe_components_factory(1)
 
 
 def test_recipe_components_factory_unrecognised_url():

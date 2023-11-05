@@ -1,6 +1,8 @@
 from collections import defaultdict
 from dataclasses import dataclass
 from enum import StrEnum, auto
+from typing import Any, Self
+from uuid import UUID, uuid4
 
 from cr_scraper.grocery_list.exceptions import (
     CannotConvertError,
@@ -17,7 +19,7 @@ class Unit(StrEnum):
     ML = auto()
 
     @classmethod
-    def _missing_(cls, value):
+    def _missing_(cls, value: str):
         value = value.lower()
         for member in cls:
             if member.value == value:
@@ -36,11 +38,13 @@ UNIT_CONVERSION = {
 
 @dataclass
 class GroceryListElement:
+    id: UUID
     name: str
     quantity: float
     unit: str
 
     def __init__(self, name: str, quantity: float, unit: str):
+        self.id = uuid4()
         if quantity < 0:
             raise NegativeQuantityError
         self.name = name
@@ -50,7 +54,7 @@ class GroceryListElement:
         except ValueError:
             self.unit = unit
 
-    def __add__(self, other):
+    def __add__(self, other) -> Self:
         if not isinstance(other, GroceryListElement) or self.name != other.name:
             raise MismatchError
         converted = other.convert_to(self.unit)
@@ -66,7 +70,7 @@ class GroceryListElement:
             for elem in self.__dict__.keys() | other.__dict__.keys()
         )
 
-    def _can_convert(self, unit: Unit):
+    def _can_convert(self, unit: Unit | Any):
         return self.unit in UNIT_CONVERSION.get(unit, {}) or self.unit == unit
 
     def _conversion_factor(self, unit: Unit):
@@ -74,7 +78,7 @@ class GroceryListElement:
             return 1
         return UNIT_CONVERSION[unit][self.unit]
 
-    def convert_to(self, unit: Unit):
+    def convert_to(self, unit: Unit | Any):
         if self._can_convert(unit):
             quantity = self.quantity / self._conversion_factor(unit)
             return GroceryListElement(self.name, quantity, unit)
@@ -83,12 +87,16 @@ class GroceryListElement:
 
 
 class GroceryList:
-    def __init__(self):
+    def __init__(self, name: str | None = None):
+        self.id = uuid4()
+        self.name: str | None = name
+        self.groceries: list[GroceryListElement] = []
         self.elements: dict[str, list[GroceryListElement]] = defaultdict(list)
 
     def add_element(self, new_element: GroceryListElement):
         if len(self.elements[new_element.name]) == 0:
             self.elements[new_element.name].append(new_element)
+            self.groceries.append(new_element)
         else:
             added = False
             for idx, _ in enumerate(self.elements[new_element.name]):
@@ -100,3 +108,13 @@ class GroceryList:
                     continue
             if not added:
                 self.elements[new_element.name].append(new_element)
+            added = False
+            for idx, _ in enumerate(self.groceries):
+                try:
+                    self.groceries[idx] += new_element
+                    added = True
+                    break
+                except CannotConvertError:
+                    continue
+            if not added:
+                self.groceries.append(new_element)

@@ -6,7 +6,8 @@ WORKDIR /app
 RUN python -m venv /opt/venv
 # Make sure we use the virtualenv:
 ENV PATH="/opt/venv/bin:$PATH"
-
+RUN apt-get update \
+    && apt-get -y install libpq-dev gcc
 RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt
@@ -39,4 +40,4 @@ WORKDIR /app
 COPY cr_scraper cr_scraper
 EXPOSE 8000
 ENV PATH="/opt/venv/bin:$PATH"
-CMD uvicorn 'cr_scraper.main:app' --host=0.0.0.0 --port=8000
+CMD uvicorn 'cr_scraper.api.main:app' --host=0.0.0.0 --port=8000

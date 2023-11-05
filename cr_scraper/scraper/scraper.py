@@ -4,7 +4,11 @@ from bs4 import BeautifulSoup
 from requests import get
 from requests.exceptions import MissingSchema
 
-from cr_scraper.scraper.exceptions import HTTPWebPageError, InvalidURLError
+from cr_scraper.scraper.exceptions import (
+    HTTPWebPageError,
+    InvalidURLError,
+    SourceNotRecognisedError,
+)
 from cr_scraper.scraper.model import Recipe, RecipesSource
 from cr_scraper.scraper.recipe_components import LidlComponents, RecipeComponents
 
@@ -20,6 +24,7 @@ def recipe_components_factory(url: str) -> RecipeComponents:
     parser = BeautifulSoup(r.content, "html.parser")
     if source is RecipesSource.LIDL:
         return LidlComponents(parser)
+    raise SourceNotRecognisedError
 
 
 def parse_recipe(url: str):
