@@ -49,7 +49,9 @@ class SQLRepository(Repository):
 
     def save(self, model) -> None:
         self.session.add(model)
-        self.session.commit()  # FIXME: don't commit nested session
 
     def delete(self) -> None:
         pass
+
+    def commit(self) -> None:
+        self.session.commit()
