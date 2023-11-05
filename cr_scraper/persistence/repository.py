@@ -1,16 +1,13 @@
 from abc import ABC, abstractmethod
 from contextlib import ContextDecorator
 from typing import Self
+from uuid import UUID
 
 from sqlalchemy import Engine, select
 from sqlalchemy.orm import Session, registry
 
 from cr_scraper.persistence.db_engine import engine
 from cr_scraper.persistence.mapper import mapper_registry
-
-# engine = create_engine(
-#     "postgresql+psycopg2://postgres:postgres@0.0.0.0:5432/cr-scraper"
-# )
 
 
 class Repository(ABC, ContextDecorator):
@@ -45,14 +42,14 @@ class SQLRepository(Repository):
         self.session.close()
         return False
 
-    def get(self, model, id: int | None = None):
+    def get(self, model, id: UUID | None = None):
         if id:
             return self.session.scalar(select(model).where(model.id == id))
         return [elem for elem in self.session.scalars(select(model)).all()]
 
     def save(self, model) -> None:
         self.session.add(model)
-        self.session.commit()
+        self.session.commit()  # FIXME: don't commit nested session
 
     def delete(self) -> None:
         pass

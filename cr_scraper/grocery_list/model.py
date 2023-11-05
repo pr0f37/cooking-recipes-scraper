@@ -1,7 +1,7 @@
 from collections import defaultdict
 from dataclasses import dataclass
 from enum import StrEnum, auto
-from typing import Any
+from typing import Any, Self
 from uuid import UUID, uuid4
 
 from cr_scraper.grocery_list.exceptions import (
@@ -54,7 +54,7 @@ class GroceryListElement:
         except ValueError:
             self.unit = unit
 
-    def __add__(self, other):
+    def __add__(self, other) -> Self:
         if not isinstance(other, GroceryListElement) or self.name != other.name:
             raise MismatchError
         converted = other.convert_to(self.unit)
@@ -78,7 +78,7 @@ class GroceryListElement:
             return 1
         return UNIT_CONVERSION[unit][self.unit]
 
-    def convert_to(self, unit: Unit):
+    def convert_to(self, unit: Unit | Any):
         if self._can_convert(unit):
             quantity = self.quantity / self._conversion_factor(unit)
             return GroceryListElement(self.name, quantity, unit)
