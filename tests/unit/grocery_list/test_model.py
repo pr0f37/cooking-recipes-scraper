@@ -60,28 +60,33 @@ def test_create_negative_quantity_element():
 
 def test_sum_up_different_objects():
     with pytest.raises(MismatchError):
-        GroceryListElement("name1", 1, "kg") + 1
+        _ = GroceryListElement("name1", 1, "kg") + 1
 
 
 def test_add_groceries_of_the_same_kind():
-    g = GroceryListElement("name1", 1, "kg")
-    assert g + g == GroceryListElement("name1", 2, "kg")
+    g = GroceryListElement("name", 1, "kg")
+    assert (g + g).name == "name"
+    assert (g + g).quantity == 2
+    assert (g + g).unit == Unit.KG
+    assert (g + g).id != g.id
 
 
 def test_add_groceries_with_different_units():
     g1 = GroceryListElement("name1", 1, "kg")
     g2 = GroceryListElement("name1", 1, "g")
-    assert g1 + g2 == GroceryListElement("name1", 1.001, "kg")
-    assert g2 + g1 == GroceryListElement("name1", 1001, "g")
+    assert (g1 + g2).quantity == 1.001
+    assert (g1 + g2).unit == Unit.KG
+    assert (g2 + g1).quantity == 1001
+    assert (g2 + g1).unit == Unit.G
 
 
 def test_add_groceries_with_different_nonconvertible_units():
     g1 = GroceryListElement("name1", 1, "kg")
     g2 = GroceryListElement("name1", 1, "ml")
     with pytest.raises(CannotConvertError):
-        g1 + g2
+        _ = g1 + g2
     with pytest.raises(CannotConvertError):
-        g2 + g1
+        _ = g2 + g1
 
 
 def test_converting_units():
@@ -96,12 +101,16 @@ def test_cannot_convert_units():
 
 def test_convert_groceries():
     ml = GroceryListElement("name1", 1, "ml")
-    assert ml.convert_to(Unit.L) == GroceryListElement("name1", 0.001, "l")
+    assert ml.convert_to(Unit.L).unit == Unit.L
+    assert ml.convert_to(Unit.L).quantity == 0.001
     li = GroceryListElement("name1", 1, "l")
-    assert li.convert_to(Unit.ML) == GroceryListElement("name1", 1000, "ml")
+    assert li.convert_to(Unit.ML).unit == Unit.ML
+    assert li.convert_to(Unit.ML).quantity == 1000
     kg = GroceryListElement("name1", 1, "kg")
-    assert kg.convert_to(Unit.G) == GroceryListElement("name1", 1000, "g")
-    assert kg.convert_to(Unit.MG) == GroceryListElement("name1", 1000000, "mg")
+    assert kg.convert_to(Unit.G).unit == Unit.G
+    assert kg.convert_to(Unit.G).quantity == 1000
+    assert kg.convert_to(Unit.MG).unit == Unit.MG
+    assert kg.convert_to(Unit.MG).quantity == 1000000
 
 
 def test_convert_groceries_error():

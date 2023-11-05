@@ -1,6 +1,7 @@
 from collections import defaultdict
 from dataclasses import dataclass
 from enum import StrEnum, auto
+from typing import Any
 from uuid import UUID, uuid4
 
 from cr_scraper.grocery_list.exceptions import (
@@ -69,7 +70,7 @@ class GroceryListElement:
             for elem in self.__dict__.keys() | other.__dict__.keys()
         )
 
-    def _can_convert(self, unit: Unit):
+    def _can_convert(self, unit: Unit | Any):
         return self.unit in UNIT_CONVERSION.get(unit, {}) or self.unit == unit
 
     def _conversion_factor(self, unit: Unit):
