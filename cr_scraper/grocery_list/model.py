@@ -1,6 +1,7 @@
 from collections import defaultdict
 from dataclasses import dataclass
 from enum import StrEnum, auto
+from uuid import UUID, uuid4
 
 from cr_scraper.grocery_list.exceptions import (
     CannotConvertError,
@@ -36,11 +37,13 @@ UNIT_CONVERSION = {
 
 @dataclass
 class GroceryListElement:
+    id: UUID
     name: str
     quantity: float
     unit: str
 
     def __init__(self, name: str, quantity: float, unit: str):
+        self.id = uuid4()
         if quantity < 0:
             raise NegativeQuantityError
         self.name = name
@@ -84,6 +87,7 @@ class GroceryListElement:
 
 class GroceryList:
     def __init__(self, name: str | None = None):
+        self.id = uuid4()
         self.name: str | None = name
         self.groceries: list[GroceryListElement] = []
         self.elements: dict[str, list[GroceryListElement]] = defaultdict(list)

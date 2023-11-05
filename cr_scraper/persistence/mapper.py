@@ -15,7 +15,12 @@ mapper_registry.map_imperatively(
     grocery_lists,
     properties={
         "groceries": relationship(
-            GroceryListElement, backref="grocery_list", order_by=groceries.c.id
+            GroceryListElement,
+            backref="grocery_list",
+            order_by=groceries.c.id,
+            default_factory=list,
+            innerjoin=True,
+            lazy="immediate",
         )
     },
 )

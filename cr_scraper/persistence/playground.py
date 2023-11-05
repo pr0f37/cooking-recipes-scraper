@@ -108,6 +108,13 @@ grocery_list.add_element(grocery)
 with Session(engine) as session:
     session.add(grocery_list)
     session.commit()
-# %%
 
-from cr_scraper.persistence.repository import SQLRepository, engine
+# %%
+## this sample assumes that db has been migrated to the latest stage
+
+from cr_scraper.grocery_list.model import GroceryList, GroceryListElement
+from cr_scraper.persistence.repository import SQLRepository
+
+with SQLRepository() as repo:
+    all_grocery_lists = repo.get(GroceryList)
+    groceries = repo.get(GroceryListElement)
