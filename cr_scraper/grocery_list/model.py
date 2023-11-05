@@ -83,12 +83,15 @@ class GroceryListElement:
 
 
 class GroceryList:
-    def __init__(self):
+    def __init__(self, name: str | None = None):
+        self.name: str | None = name
+        self.groceries: list[GroceryListElement] = []
         self.elements: dict[str, list[GroceryListElement]] = defaultdict(list)
 
     def add_element(self, new_element: GroceryListElement):
         if len(self.elements[new_element.name]) == 0:
             self.elements[new_element.name].append(new_element)
+            self.groceries.append(new_element)
         else:
             added = False
             for idx, _ in enumerate(self.elements[new_element.name]):
@@ -100,3 +103,13 @@ class GroceryList:
                     continue
             if not added:
                 self.elements[new_element.name].append(new_element)
+            added = False
+            for idx, _ in enumerate(self.groceries):
+                try:
+                    self.groceries[idx] += new_element
+                    added = True
+                    break
+                except CannotConvertError:
+                    continue
+            if not added:
+                self.groceries.append(new_element)

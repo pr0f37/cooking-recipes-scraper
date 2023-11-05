@@ -1,3 +1,4 @@
+# flake8: noqa
 # %%
 from typing import List, Optional
 
@@ -90,19 +91,23 @@ some_table = Table("some_table", metadata_obj, autoload_with=engine)
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.orm import Session
 
-from cr_scraper.grocery_list.model import GroceryListElement, Unit
+from cr_scraper.grocery_list.model import GroceryList, GroceryListElement, Unit
 from cr_scraper.persistence.mapper import mapper_registry
-
-metadata_obj = MetaData()
+from cr_scraper.persistence.model import metadata_obj
 
 engine = create_engine(
     "postgresql+psycopg2://postgres:postgres@0.0.0.0:5432/cr-scraper", echo=True
 )
 
-metadata_obj.create_all(engine)
+metadata_obj.create_all(engine, checkfirst=True)
 
 grocery = GroceryListElement(name="test_name", quantity=1.02, unit=Unit.KG)
+grocery_list = GroceryList(name="test list")
+grocery_list.add_element(grocery)
+grocery_list.add_element(grocery)
 with Session(engine) as session:
-    session.add(grocery)
+    session.add(grocery_list)
     session.commit()
 # %%
+
+from cr_scraper.persistence.repository import SQLRepository, engine
