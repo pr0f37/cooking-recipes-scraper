@@ -93,6 +93,12 @@ class GroceryList:
         self.groceries: list[GroceryListElement] = []
         self.elements: dict[str, list[GroceryListElement]] = defaultdict(list)
 
+    def __repr__(self) -> str:
+        return (
+            f"GroceryList(id={self.id!r}, name={self.name!r}, "
+            f"groceries={self.groceries!r}"
+        )
+
     def add_element(self, new_element: GroceryListElement):
         if len(self.elements[new_element.name]) == 0:
             self.elements[new_element.name].append(new_element)
