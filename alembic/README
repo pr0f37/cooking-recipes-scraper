@@ -1,0 +1,11 @@
+Generic single-database configuration.
+
+env.py has been supplied with database configuration imported from
+cr_scraper.persistence.db_engine.DBEngine.get_connection_string()
+
+This means that it by default reads database from env variables:
+- DB_HOST
+- DB_PORT
+- DB_NAME
+- DB_USER
+- DB_PASSWORD

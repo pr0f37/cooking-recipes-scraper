@@ -65,6 +65,7 @@ flake8 = "^6.1.0"
 [tool.poetry.group.db.dependencies]
 psycopg2 = "^2.9.9"
 sqlalchemy = "^2.0.23"
+alembic = "^1.12.1"
 
 [build-system]
 requires = ["poetry-core"]
