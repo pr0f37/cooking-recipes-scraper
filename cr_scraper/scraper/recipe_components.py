@@ -30,11 +30,13 @@ class LidlComponents(RecipeComponents):
         return [recipe["href"] for recipe in recipes]
 
     def get_title(self) -> str:
-        return self._get_details().h1.text
+        return self._get_details().h1.text  # type: ignore
 
     def get_ingredients(self) -> list[str]:
-        ingredients = self._get_details().find("div", class_="skladniki")
-        return [li.text for li in ingredients.find_all("li")]
+        ingredients = self._get_details().find(  # type: ignore
+            "div", class_="skladniki"  # type: ignore
+        )
+        return [li.text for li in ingredients.find_all("li")]  # type:ignore
 
     def _get_details(self):
         return self.parser.find("div", id="details")
