@@ -18,3 +18,30 @@ services:
       context: .
       dockerfile: docker/test/Dockerfile.test
     entrypoint: black . --check
+  db-migration:
+    build:
+      context: .
+      dockerfile: docker/test/Dockerfile.test
+    environment:
+      - DB_NAME=cr-scraper
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db-for-migration
+      - DB_PORT=5432
+    entrypoint: alembic upgrade head
+    depends_on:
+      db-for-migration:
+        condition: service_healthy
+  db-for-migration:
+    image: postgres
+    restart: always
+    user: postgres
+    environment:
+      - POSTGRES_DB=cr-scraper
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
