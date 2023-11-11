@@ -1,8 +1,8 @@
-"""Added grocery_lists and groceries tables
+"""Groceries and grocery_lists tables
 
-Revision ID: 1f3a98a9251c
+Revision ID: e9aedd17ed96
 Revises:
-Create Date: 2023-11-05 21:54:22.316403
+Create Date: 2023-11-11 18:47:18.128079
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "1f3a98a9251c"
+revision: str = "e9aedd17ed96"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
