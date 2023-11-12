@@ -1,4 +1,3 @@
-from collections import defaultdict
 from dataclasses import dataclass
 from enum import StrEnum, auto
 from typing import Any, Self
@@ -91,7 +90,6 @@ class GroceryList:
         self.id = uuid4()
         self.name: str | None = name
         self.groceries: list[GroceryListElement] = []
-        self.elements: dict[str, list[GroceryListElement]] = defaultdict(list)
 
     def __repr__(self) -> str:
         return (
@@ -100,27 +98,13 @@ class GroceryList:
         )
 
     def add_element(self, new_element: GroceryListElement):
-        if len(self.elements[new_element.name]) == 0:
-            self.elements[new_element.name].append(new_element)
+        if len(self.groceries) == 0:
             self.groceries.append(new_element)
         else:
-            added = False
-            for idx, _ in enumerate(self.elements[new_element.name]):
-                try:
-                    self.elements[new_element.name][idx] += new_element
-                    added = True
-                    break
-                except CannotConvertError:
-                    continue
-            if not added:
-                self.elements[new_element.name].append(new_element)
-            added = False
             for idx, _ in enumerate(self.groceries):
                 try:
                     self.groceries[idx] += new_element
-                    added = True
-                    break
-                except CannotConvertError:
+                except (CannotConvertError, MismatchError):
                     continue
-            if not added:
-                self.groceries.append(new_element)
+                return None
+            self.groceries.append(new_element)
