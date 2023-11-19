@@ -2,8 +2,6 @@ from abc import ABC, abstractmethod
 
 from bs4 import BeautifulSoup, Tag
 
-from cr_scraper.grocery_list.model import GroceryListElement
-
 
 class RecipeComponents(ABC):
     @abstractmethod
@@ -19,7 +17,7 @@ class RecipeComponents(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_ingredients(self) -> list[GroceryListElement]:
+    def get_ingredients(self) -> list[tuple[str, float, str]]:
         raise NotImplementedError
 
 
@@ -34,7 +32,7 @@ class LidlComponents(RecipeComponents):
     def get_title(self) -> str:
         return self._get_details().h1.text  # type: ignore
 
-    def get_ingredients(self) -> list[GroceryListElement]:
+    def get_ingredients(self) -> list[tuple[str, float, str]]:
         ingredients = self._get_details().find(  # type: ignore
             "div", class_="skladniki"  # type: ignore
         )
@@ -47,11 +45,10 @@ class LidlComponents(RecipeComponents):
     def _get_details(self):
         return self.parser.find("div", id="details")
 
-    def _parse_ingredient(self, ingredient: str) -> GroceryListElement:
+    def _parse_ingredient(self, ingredient: str) -> tuple[str, float, str]:
         name, quantity_unit = ingredient.split("-")
         quantity, unit = quantity_unit.strip().split(" ")
-        return GroceryListElement(
-            name=name.strip(),
-            quantity=float(quantity.strip()),
-            unit=unit.strip(),
-        )
+        name = name.strip()
+        quantity = float(quantity.strip())
+        unit = unit.strip()
+        return name, quantity, unit

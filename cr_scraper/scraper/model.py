@@ -1,14 +1,20 @@
 from dataclasses import dataclass
 from enum import Enum
 
-from cr_scraper.grocery_list.model import GroceryListElement
 from cr_scraper.scraper.exceptions import InvalidURLError, SourceNotRecognisedError
+
+
+@dataclass
+class Ingredient:
+    name: str
+    quantity: float
+    unit: str
 
 
 @dataclass
 class Recipe:
     url: str
-    ingredients: list[GroceryListElement]
+    ingredients: list[Ingredient]
     title: str
     time: None | str = None
     difficulty: None | str = None

@@ -1,3 +1,5 @@
+from copy import copy
+
 import pytest
 
 from cr_scraper.grocery_list.exceptions import (
@@ -35,7 +37,8 @@ def test_add_multiple_elements():
 
 def test_add_multiple_elements_in_different_units():
     elem_kg = GroceryListElement("name1", 1, "kg")
-    elem_g = elem_kg.convert_to(Unit.G)
+    elem_g = copy(elem_kg)
+    elem_g.convert_to(Unit.G)
     elem_l = GroceryListElement("name1", 1, "l")
     elem_hand = GroceryListElement("name1", 1, "handful")
     groceries = GroceryList()
@@ -89,12 +92,13 @@ def test_add_groceries_with_different_nonconvertible_units():
 
 def test_converting_units():
     g = GroceryListElement("name1", 1, "kg")
-    assert g._can_convert("g") is True
+    assert g._convert("g") == 1000
 
 
 def test_cannot_convert_units():
     g = GroceryListElement("name1", 1, "ml")
-    assert g._can_convert("g") is False
+    with pytest.raises(CannotConvertError):
+        g._convert("g")
 
 
 def test_convert_groceries():

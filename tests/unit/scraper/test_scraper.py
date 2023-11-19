@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 
 from pytest import raises
 
-from cr_scraper.grocery_list.model import GroceryListElement, Unit
+from cr_scraper.grocery_list.model import Unit
 from cr_scraper.scraper.exceptions import (
     HTTPWebPageError,
     InvalidURLError,
@@ -58,13 +58,9 @@ def test_lidl_components(mocker):
     test_components = recipe_components_factory("https://kuchnialidla.pl")
     assert isinstance(test_components, LidlComponents) is True
     assert test_components.get_title() == "test_title"
-    assert all(
-        isinstance(ingr, GroceryListElement)
-        for ingr in test_components.get_ingredients()
-    )
     assert [
-        (ingr.name, ingr.quantity, ingr.unit)
-        for ingr in test_components.get_ingredients()
+        (name, quantity, unit)
+        for name, quantity, unit in test_components.get_ingredients()
     ] == [
         ("ingredient_1.1", 11.0, Unit.MG),
         ("ingredient_1.2", 12.0, Unit.G),

@@ -1,44 +1,47 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
+from http import HTTPStatus
+from uuid import UUID
 
-from cr_scraper.grocery_list.model import GroceryList
-from cr_scraper.persistence.repository import SQLRepository
-from cr_scraper.scraper.scraper import parse_recipe
+from fastapi import FastAPI, HTTPException
 
-
-class Url(BaseModel):
-    url: str
-    title: str = "my_list"
-
-
-class GroceryListElementResponse(BaseModel):
-    name: str
-    quantity: float
-    unit: str
-
-
-class GroceryListResponse(BaseModel):
-    name: str | None
-    groceries: list[GroceryListElementResponse]
-
+from cr_scraper.api.schema.model import GroceryListResponse, Url, UrlAndTitle
+from cr_scraper.api.services.recipes import (
+    get_all_grocery_lists,
+    initialize_list,
+    scrape_recipe,
+    update_list,
+)
+from cr_scraper.persistence.repository import NotExistInRepositoryError
+from cr_scraper.scraper.model import Recipe
 
 app = FastAPI()
 
 
-@app.get("/", response_model=list[GroceryListResponse])
+@app.post("/recipes/scrape")
+async def scrape(url: Url) -> Recipe:
+    return scrape_recipe(url.url)
+
+
+@app.get("/grocery_lists", response_model=list[GroceryListResponse])
 async def root():  # -> Any | list[Any] | None:
-    g_list = []
-    with SQLRepository() as repo:
-        g_list = repo.get(GroceryList)
-    return g_list
+    return get_all_grocery_lists()
 
 
-@app.post("/scrape")
-async def scrape(url: Url):
-    recipe = parse_recipe(url.url)
-    grocery_list = GroceryList(name="my_list")
-    for ingredient in recipe.ingredients:
-        grocery_list.add_element(ingredient)
-    with SQLRepository() as repo:
-        repo.save(grocery_list)
-        repo.commit()
+@app.post(
+    "/grocery_lists",
+    status_code=HTTPStatus.CREATED,
+    response_model=GroceryListResponse,
+)
+async def new_list(url: UrlAndTitle):
+    return initialize_list(str(url.url), url.title)
+
+
+@app.post(
+    "/grocery_lists/{id}/add_recipe",
+    status_code=HTTPStatus.CREATED,
+    response_model=GroceryListResponse,
+)
+async def add_recipe_to_groceries_list(url: Url, id: UUID):
+    try:
+        return update_list(str(url.url), id)
+    except NotExistInRepositoryError:
+        raise HTTPException(HTTPStatus.NOT_FOUND, f"Grocery list {id} not exists")

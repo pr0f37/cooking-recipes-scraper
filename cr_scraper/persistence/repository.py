@@ -11,19 +11,32 @@ from cr_scraper.persistence.mapper import mapper_registry
 
 
 class Repository(ABC, ContextDecorator):
+    @abstractmethod
     def __init__(self) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    def get():
+    def __enter__(self) -> Self:
         raise NotImplementedError
 
     @abstractmethod
-    def save():
+    def __exit__(self, *exc) -> bool:
         raise NotImplementedError
 
     @abstractmethod
-    def delete():
+    def get(self, model, id: UUID | None = None):
+        raise NotImplementedError
+
+    @abstractmethod
+    def add(self, model):
+        raise NotImplementedError
+
+    @abstractmethod
+    def save(self, *args):
+        raise NotImplementedError
+
+    @abstractmethod
+    def delete(self, *args):
         raise NotImplementedError
 
 
@@ -44,14 +57,26 @@ class SQLRepository(Repository):
 
     def get(self, model, id: UUID | None = None):
         if id:
-            return self.session.scalar(select(model).where(model.id == id))
+            db_model = self.session.scalar(select(model).where(model.id == id))
+            if db_model is None:
+                raise NotExistInRepositoryError
+            return db_model
         return [elem for elem in self.session.scalars(select(model)).all()]
 
-    def save(self, model) -> None:
+    def add(self, model) -> None:
         self.session.add(model)
+
+    def save(self) -> None:
+        self.session.commit()
 
     def delete(self) -> None:
         pass
 
-    def commit(self) -> None:
-        self.session.commit()
+
+class NotExistInRepositoryError(Exception):
+    """
+    Element does not exist in the repository
+    """
+
+    def __init__(self, *args: object) -> None:
+        super().__init__("Element does not exist in the repository", *args)

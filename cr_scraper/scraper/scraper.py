@@ -9,7 +9,7 @@ from cr_scraper.scraper.exceptions import (
     InvalidURLError,
     SourceNotRecognisedError,
 )
-from cr_scraper.scraper.model import Recipe, RecipesSource
+from cr_scraper.scraper.model import Ingredient, Recipe, RecipesSource
 from cr_scraper.scraper.recipe_components import LidlComponents, RecipeComponents
 
 
@@ -27,8 +27,11 @@ def recipe_components_factory(url: str) -> RecipeComponents:
     raise SourceNotRecognisedError
 
 
-def parse_recipe(url: str):
+def parse_recipe(url: str) -> Recipe:
     recipe = recipe_components_factory(url)
     title = recipe.get_title()
-    ingredients = recipe.get_ingredients()
+    ingredients = [
+        Ingredient(name, quantity, unit)
+        for name, quantity, unit in recipe.get_ingredients()
+    ]
     return Recipe(url=url, ingredients=ingredients, title=title)
