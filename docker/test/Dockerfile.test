@@ -24,7 +24,7 @@ COPY --from=base /opt/venv /opt/venv
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 RUN apt-get update \
-    && apt-get -y install libpq-dev gcc
+    && apt-get -y install libpq-dev
 WORKDIR /app
 
 COPY cr_scraper cr_scraper

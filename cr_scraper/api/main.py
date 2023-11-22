@@ -18,7 +18,7 @@ app = FastAPI()
 
 @app.post("/recipes/scrape")
 async def scrape(url: Url) -> Recipe:
-    return scrape_recipe(url.url)
+    return scrape_recipe(str(url.url))
 
 
 @app.get("/grocery_lists", response_model=list[GroceryListResponse])
