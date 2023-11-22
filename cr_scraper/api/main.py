@@ -22,7 +22,7 @@ async def scrape(url: Url) -> Recipe:
 
 
 @app.get("/grocery_lists", response_model=list[GroceryListResponse])
-async def root():  # -> Any | list[Any] | None:
+async def display_all_grocery_lists():  # -> Any | list[Any] | None:
     return get_all_grocery_lists()
 
 
