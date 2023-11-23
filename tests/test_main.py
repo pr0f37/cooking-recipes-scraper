@@ -129,3 +129,20 @@ def test_add_recipe_to_groceries_list(mocker):
         "groceries": [{"name": "test_name", "quantity": 1.0, "unit": "kg"}],
     }
     update_list_mock.assert_called_with(http_test_url, list_uuid)
+
+
+def test_add_recipe_to_groceries_list_error(mocker):
+    update_list_mock = mocker.patch(
+        "cr_scraper.api.main.update_list", return_value=grocery_list
+    )
+    update_list_mock.side_effect = KeyError
+    response = client.post(
+        f"/grocery_lists/{list_uuid}/add_recipe", json={"url": test_url}
+    )
+    assert response.status_code == HTTPStatus.CREATED
+    assert response.json() == {
+        "id": f"{list_uuid}",
+        "name": "test_name",
+        "groceries": [{"name": "test_name", "quantity": 1.0, "unit": "kg"}],
+    }
+    update_list_mock.assert_called_with(http_test_url, list_uuid)
