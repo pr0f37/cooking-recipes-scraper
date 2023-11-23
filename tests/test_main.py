@@ -133,9 +133,10 @@ def test_add_recipe_to_groceries_list(mocker):
 
 def test_add_recipe_to_groceries_list_error(mocker):
     update_list_mock = mocker.patch(
-        "cr_scraper.api.main.update_list", return_value=grocery_list
+        "cr_scraper.api.main.update_list",
+        return_value=grocery_list,
+        side_effect=KeyError,
     )
-    update_list_mock.side_effect = KeyError
     response = client.post(
         f"/grocery_lists/{list_uuid}/add_recipe", json={"url": test_url}
     )

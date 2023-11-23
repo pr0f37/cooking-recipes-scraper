@@ -42,6 +42,6 @@ async def new_list(url: UrlAndTitle):
 )
 async def add_recipe_to_groceries_list(url: Url, id: UUID):
     try:
-        return update_list(str(url.url), id)
+        return update_list(str(url), id)
     except NotExistInRepositoryError:
         raise HTTPException(HTTPStatus.NOT_FOUND, f"Grocery list {id} not exists")
