@@ -10,11 +10,17 @@ from cr_scraper.grocery_list.model import GroceryList, GroceryListElement
 from cr_scraper.scraper.model import Ingredient, Recipe
 
 client = TestClient(app)
+test_url = "https://test_url.com"
+http_test_url = f"{HttpUrl(test_url)}"
+list_uuid = uuid4()
+grocery_list = GroceryList(
+    groceries=[GroceryListElement(name="test_name", quantity=1.0, unit="kg")],
+    id=list_uuid,
+    name="test_name",
+)
 
 
 def test_scrape_recipe(mocker):
-    test_url = "https://test_url.com"
-    http_test_url = f"{HttpUrl(test_url)}"
     scrape_recipe_mock = mocker.patch(
         "cr_scraper.api.main.scrape_recipe",
         return_value=Recipe(
@@ -44,7 +50,7 @@ def test_scrape_recipe(mocker):
         ("htp://www.www.www", "url_scheme", "URL scheme should be 'http' or 'https'"),
         ("https://", "url_parsing", "Input should be a valid URL, empty host"),
         (
-            "www.kuchnialidla.pl",
+            "www.test.com",
             "url_parsing",
             "Input should be a valid URL, relative URL without a base",
         ),
@@ -62,18 +68,9 @@ def test_scrape_recipe_errors(mocker, url, type, msg):
 
 
 def test_display_all_grocery_lists(mocker):
-    list_uuid = uuid4()
     mocker.patch(
         "cr_scraper.api.main.get_all_grocery_lists",
-        return_value=[
-            GroceryList(
-                groceries=[
-                    GroceryListElement(name="test_name", quantity=1.0, unit="kg")
-                ],
-                id=list_uuid,
-                name="test_name",
-            )
-        ],
+        return_value=[grocery_list],
     )
     response = client.get("/grocery_lists")
     assert response.status_code == HTTPStatus.OK
@@ -87,7 +84,6 @@ def test_display_all_grocery_lists(mocker):
 
 
 def test_display_all_grocery_lists_empty_groceries(mocker):
-    list_uuid = uuid4()
     mocker.patch(
         "cr_scraper.api.main.get_all_grocery_lists",
         return_value=[
@@ -117,3 +113,19 @@ def test_display_all_grocery_lists_empty_lists(mocker):
     response = client.get("/grocery_lists")
     assert response.status_code == HTTPStatus.OK
     assert response.json() == []
+
+
+def test_add_recipe_to_groceries_list(mocker):
+    update_list_mock = mocker.patch(
+        "cr_scraper.api.main.update_list", return_value=grocery_list
+    )
+    response = client.post(
+        f"/grocery_lists/{list_uuid}/add_recipe", json={"url": test_url}
+    )
+    assert response.status_code == HTTPStatus.CREATED
+    assert response.json() == {
+        "id": f"{list_uuid}",
+        "name": "test_name",
+        "groceries": [{"name": "test_name", "quantity": 1.0, "unit": "kg"}],
+    }
+    update_list_mock.assert_called_with(http_test_url, list_uuid)

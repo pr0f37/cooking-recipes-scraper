@@ -31,7 +31,9 @@ def initialize_list(
     return get_list(id)
 
 
-def update_list(url: str, id: UUID, repository: type[Repository] = SQLRepository):
+def update_list(
+    url: str, id: UUID, repository: type[Repository] = SQLRepository
+) -> GroceryList:
     recipe = parse_recipe(url)
     groceries = get_list(id)
     add_recipe_to_list(groceries, recipe)
