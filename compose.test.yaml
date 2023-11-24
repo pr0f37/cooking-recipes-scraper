@@ -7,7 +7,7 @@ services:
       dockerfile: docker/test/Dockerfile.test
     volumes:
       - ./test_results:/app/test_results/
-    entrypoint: pytest . --verbose --junit-xml=test_results/junit.xml
+    entrypoint: pytest . --verbose --junit-xml=test_results/junit.xml --cov=cr_scraper --cov-report xml:test_results/coverage.xml
   lint:
     build:
       context: .
