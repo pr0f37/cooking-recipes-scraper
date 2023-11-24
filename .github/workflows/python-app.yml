@@ -39,7 +39,7 @@ jobs:
           docker-compose -f compose.test.yaml up --exit-code-from db-migration db-migration
           exit $?
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@v3
+        uses: mikepenz/action-junit-report@v4
         if: success() || failure()
         with:
           report_paths: "**/test_results/junit.xml"

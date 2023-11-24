@@ -1,3 +1,5 @@
+from copy import copy
+
 import pytest
 
 from cr_scraper.grocery_list.exceptions import (
@@ -10,15 +12,15 @@ from cr_scraper.grocery_list.model import GroceryList, GroceryListElement, Unit
 
 def test_create_empty_list():
     groceries = GroceryList()
-    assert groceries.elements == dict()
+    assert groceries.groceries == []
 
 
 def test_add_element():
     elem = GroceryListElement("name1", 1, "kg")
     groceries = GroceryList()
     groceries.add_element(elem)
-    assert len(groceries.elements) == 1
-    assert len(groceries.elements["name1"]) == 1
+    assert len(groceries.groceries) == 1
+    assert {grocery.name for grocery in groceries.groceries} == {"name1"}
 
 
 def test_add_multiple_elements():
@@ -26,18 +28,17 @@ def test_add_multiple_elements():
     groceries = GroceryList()
     groceries.add_element(elem)
     groceries.add_element(elem)
-    assert len(groceries.elements) == 1
-    assert len(groceries.elements["name1"]) == 1
+    assert len(groceries.groceries) == 1
 
     groceries.add_element(GroceryListElement("name2", 2, "ml"))
-    assert len(groceries.elements) == 2
-    assert len(groceries.elements["name1"]) == 1
-    assert len(groceries.elements["name2"]) == 1
+    assert len(groceries.groceries) == 2
+    assert {grocery.name for grocery in groceries.groceries} == {"name1", "name2"}
 
 
 def test_add_multiple_elements_in_different_units():
     elem_kg = GroceryListElement("name1", 1, "kg")
-    elem_g = elem_kg.convert_to(Unit.G)
+    elem_g = copy(elem_kg)
+    elem_g.convert_to(Unit.G)
     elem_l = GroceryListElement("name1", 1, "l")
     elem_hand = GroceryListElement("name1", 1, "handful")
     groceries = GroceryList()
@@ -46,11 +47,11 @@ def test_add_multiple_elements_in_different_units():
     groceries.add_element(elem_g)
     groceries.add_element(elem_hand)
 
-    assert len(groceries.elements) == 1
-    elem_name1 = groceries.elements["name1"]
-    assert len(elem_name1) == 3
-    assert [Unit.KG, Unit.L, "handful"] == [elem.unit for elem in elem_name1]
-    assert [2, 1, 1] == [elem.quantity for elem in elem_name1]
+    gr_list = groceries.groceries
+    assert len(gr_list) == 3
+    assert {grocery.name for grocery in gr_list} == {"name1"}
+    assert {Unit.KG, Unit.L, "handful"} == {elem.unit for elem in gr_list}
+    assert [2, 1, 1] == [elem.quantity for elem in gr_list]
 
 
 def test_create_negative_quantity_element():
@@ -91,12 +92,13 @@ def test_add_groceries_with_different_nonconvertible_units():
 
 def test_converting_units():
     g = GroceryListElement("name1", 1, "kg")
-    assert g._can_convert("g") is True
+    assert g._convert("g") == 1000
 
 
 def test_cannot_convert_units():
     g = GroceryListElement("name1", 1, "ml")
-    assert g._can_convert("g") is False
+    with pytest.raises(CannotConvertError):
+        g._convert("g")
 
 
 def test_convert_groceries():

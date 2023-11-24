@@ -5,9 +5,16 @@ from cr_scraper.scraper.exceptions import InvalidURLError, SourceNotRecognisedEr
 
 
 @dataclass
+class Ingredient:
+    name: str
+    quantity: float
+    unit: str
+
+
+@dataclass
 class Recipe:
     url: str
-    ingredients: list[str]
+    ingredients: list[Ingredient]
     title: str
     time: None | str = None
     difficulty: None | str = None
