@@ -1,0 +1,15 @@
+{% block content %}
+<h1>{{ grocery_list.name }}</h1>
+
+<div>
+    {% for grocery in grocery_list.groceries %}
+    <div>{{ grocery.name }} - {{ grocery.quantity }} {{ grocery.unit }}</div>
+    {% endfor %}
+</div>
+
+<p>
+    <a href="/grocery_lists/{{grocery_list.id}}/edit/html">Edit</a>
+    <a href="/grocery_lists/html">Back</a>
+</p>
+
+{% endblock %}

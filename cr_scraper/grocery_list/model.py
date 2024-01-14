@@ -62,7 +62,7 @@ class GroceryListElement:
         self.quantity += other._convert(self.unit)
         return self
 
-    def __add__(self, other) -> Self:
+    def __add__(self, other) -> "GroceryListElement":
         if not isinstance(other, GroceryListElement) or self.name != other.name:
             raise MismatchError
         new = GroceryListElement(self.name, self.quantity, self.unit)

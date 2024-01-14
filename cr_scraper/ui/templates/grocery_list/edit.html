@@ -1,0 +1,21 @@
+{% block content %}
+
+<form action="/grocery_lists/{{ grocery_list.id }}/edit/html" method="post">
+    <fieldset>
+        <legend>Grocery List values</legend>
+        <p>
+            <label for="list_name">List name</label>
+            <input name="list_name" type="text" placeholder="list name" id="list_name"
+                value="{{ grocery_list.name }}" />
+            <span class="error">{{ errors }}</span>
+        </p>
+        <button>Save</button>
+    </fieldset>
+</form>
+
+<form action="/grocery_lists/{{ grocery_list.id }}/delete/html" method="post">
+    <button>Delete</button>
+</form>
+
+<a href="/grocery_lists">Back</a>
+{% endblock %}

@@ -6,6 +6,15 @@ from cr_scraper.scraper.model import Recipe
 from cr_scraper.scraper.scraper import parse_recipe
 
 
+def search_for_grocery_list(
+    list_name: str, repository: type[Repository] = SQLRepository
+):
+    g_list = []
+    with repository() as repo:
+        g_list = repo.get(GroceryList, name=list_name)
+    return g_list
+
+
 def get_all_grocery_lists(repository: type[Repository] = SQLRepository):
     g_list = []
     with repository() as repo:
@@ -31,7 +40,7 @@ def initialize_list(
     return get_list(id)
 
 
-def update_list(
+def update_list_add_recipe(
     url: str, id: UUID, repository: type[Repository] = SQLRepository
 ) -> GroceryList:
     recipe = parse_recipe(url)
@@ -43,9 +52,11 @@ def update_list(
     return get_list(id)
 
 
-def get_list(id: UUID, repository: type[Repository] = SQLRepository) -> GroceryList:
+def get_list(
+    id: UUID, repository: type[Repository] = SQLRepository
+) -> GroceryList | None:
     with repository() as repo:
-        groceries = repo.get(GroceryList, id)
+        groceries = repo.get(GroceryList, id=id)
     return groceries
 
 
@@ -54,3 +65,23 @@ def add_recipe_to_list(groceries: GroceryList, recipe: Recipe) -> None:
         groceries.add_element(
             GroceryListElement(ingredient.name, ingredient.quantity, ingredient.unit)
         )
+
+
+def update_list(
+    id: UUID,
+    name: str,
+    groceries: list[GroceryListElement],
+    repository: type[Repository] = SQLRepository,
+) -> GroceryList:
+    with repository() as repo:
+        grocery_list = repo.get(GroceryList, id=id)
+        grocery_list.name = name
+        repo.save()
+    return grocery_list
+
+
+def delete_list(id: UUID, repository: type[Repository] = SQLRepository):
+    with repository() as repo:
+        grocery_list = repo.get(GroceryList, id=id)
+        repo.delete(grocery_list)
+        repo.save()

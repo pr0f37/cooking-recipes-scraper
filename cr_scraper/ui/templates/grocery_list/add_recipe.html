@@ -1,0 +1,16 @@
+{% block content %}
+<form action="/grocery_lists/{{grocery_list.id}}/add_recipe/html" method="post">
+    <fieldset>
+        <legend>Add new recipe to {{ grocery_list.name }}</legend>
+        <p>
+            <label for="url">Recipe URL</label>
+            <input name="url" id="url" type="url" placeholder="Recipe URL" value="" />
+            <span class="errors">{{errors}}</span>
+        </p>
+        <button>Add</button>
+    </fieldset>
+</form>
+<p>
+    <a href="/grocery_lists/html">Back</a>
+</p>
+{% endblock %}
