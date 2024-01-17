@@ -51,6 +51,18 @@ async def show_grocery_lists(request: Request, q: str | None = None):
     )
 
 
+@app.post("/grocery_lists/html", response_class=HTMLResponse)
+async def show_grocery_lists_partial(request: Request):
+    async with request.form() as form:
+        q = form["q"]
+    if q:
+        grocery_lists = search_for_grocery_list(list_name=q)
+        return templates.TemplateResponse(
+            name="grocery_list/partial_search_results.html",
+            context={"request": request, "grocery_lists": grocery_lists},
+        )
+
+
 @app.post(
     "/grocery_lists",
     status_code=HTTPStatus.CREATED,
@@ -75,7 +87,6 @@ async def get_grocery_list(id: UUID):
 @app.get(
     "/grocery_lists/{id}/html",
     status_code=HTTPStatus.OK,
-    response_model=GroceryListResponse,
 )
 async def get_grocery_list_html(request: Request, id: UUID):
     try:

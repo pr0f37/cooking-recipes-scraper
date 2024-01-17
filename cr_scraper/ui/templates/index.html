@@ -1,10 +1,14 @@
+{% extends 'layout.html' %}
 {% block content %}
-
-<form action="/grocery_lists/html" method="get" class="tool-bar">
-    <label for="search">Search term</label>
-    <input id="search" type="search" name="q" value="{{ q or '' }}" />
-    <input type="submit" value="Search" />
-</form>
+<div id="main">
+    <form>
+        <label for="search">Shopping list name</label>
+        <input id="search" type="search" name="q" value="{{ q or '' }}" />
+        <button hx-post="/grocery_lists/html" hx-target="#main">
+            Search the gocery lists
+        </button>
+    </form>
+</div>
 <table>
     <thead>
         <tr>
@@ -21,8 +25,13 @@
             <td>len(list.groceries)</td> <!-- #TODO -->
             <td><a href="/grocery_lists/{{ list.id }}/add_recipe/html">ADD NEW RECIPE TO LIST</a></td>
             <td><a href="/grocery_lists/{{ list.id }}/html">LIST DETAILS</a></td>
+            <td><button hx-get="/grocery_lists/{{ list.id }}/html" hx-target="#list">Get the details</button></td>
+
         </tr>
         {% endfor %}
     </tbody>
 </table>
+<div id="list">
+
+</div>
 {% endblock %}

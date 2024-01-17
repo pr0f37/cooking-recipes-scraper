@@ -1,0 +1,15 @@
+{% block content %}
+<table>
+    <tbody>
+        {% for list in grocery_lists %}
+        <tr>
+            <td>{{ list.id }}</td>
+            <td>{{ list.name }}</td>
+            <td>len(list.groceries)</td> <!-- #TODO -->
+            <td><a href="/grocery_lists/{{ list.id }}/add_recipe/html">ADD NEW RECIPE TO LIST</a></td>
+            <td><a href="/grocery_lists/{{ list.id }}/html">LIST DETAILS</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
