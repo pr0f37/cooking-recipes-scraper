@@ -7,6 +7,7 @@
     <script src="https://unpkg.com/htmx.org@1.9.2"
         integrity="sha384-L6OqL9pRWyyFU3+/bjdSri+iIphTN/bvYyM37tICVyOJkWZLpP2vGn6VUEXgzg6h"
         crossorigin="anonymous"></script>
+
 </head>
 
 <body hx-boost="true">
@@ -17,7 +18,13 @@
                 <sub-title>A Demo Application</sub-title>
             </h1>
         </header>
-        {% block content %}{% endblock %}
+        <div hx-boost="true">
+            <a href="/grocery_lists/html">Shopping lists</a>
+            <a href="/settings/html">Settings</a>
+            <a href="/help/html">Help</a>
+        </div>
+        {% block content %}
+        {% endblock %}
     </main>
 </body>
 

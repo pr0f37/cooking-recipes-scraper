@@ -2,11 +2,29 @@
 {% block content %}
 <div id="main">
     <form>
-        <label for="search">Shopping list name</label>
-        <input id="search" type="search" name="q" value="{{ q or '' }}" />
-        <button hx-post="/grocery_lists/html" hx-target="#main">
-            Search the gocery lists
-        </button>
+        <fieldset>
+            <legend>Search</legend>
+            <label for="search">Shopping list name</label>
+            <input id="search" type="search" name="q" value="{{ q or '' }}" />
+            <button hx-post="/grocery_lists/html" hx-target="#table_body">
+                Search the gocery lists
+            </button>
+        </fieldset>
+    </form>
+    <form>
+        <fieldset>
+            <legend>Create new shopping list</legend>
+            <label for="shopping_list_name">Shopping list name</label>
+            <input id="shopping_list_name" type="text" name="name" value="{{ '' }}" />
+            <span class="error">{{ errors['name']}}</span>
+            <br>
+            <label for="shopping_list_recipe_url">Recipe url</label>
+            <input id="shopping_list_recipe_url" type="url" name="url" value="{{''}}" hx-post="/recipes/scrape/html"
+                hx-target="next .error" hx-trigger="change, keyup delay:500ms changed" />
+            <span class="error">{{ errors['url']}}</span>
+            <br>
+            <button hx-post="/grocery_lists/new/html" hx-target="body">New shopping list</button>
+        </fieldset>
     </form>
 </div>
 <table>
@@ -17,21 +35,27 @@
             <th>how many groceries</th>
         </tr>
     </thead>
-    <tbody>
+    <tbody id="table_body">
         {% for list in grocery_lists %}
         <tr>
             <td>{{ list.id }}</td>
-            <td>{{ list.name }}</td>
-            <td>len(list.groceries)</td> <!-- #TODO -->
+            <td style="border-right: 1px; border-color: black; border-right-style: solid;">{{ list.name }}</td>
+            <td style="border-right: 1px; border-color: black; border-right-style: solid;">{{list.groceries|length}}
+            </td> <!-- #TODO -->
             <td><a href="/grocery_lists/{{ list.id }}/add_recipe/html">ADD NEW RECIPE TO LIST</a></td>
             <td><a href="/grocery_lists/{{ list.id }}/html">LIST DETAILS</a></td>
-            <td><button hx-get="/grocery_lists/{{ list.id }}/html" hx-target="#list">Get the details</button></td>
-
+            <td><button hx-delete="/grocery_lists/{{ list.id }}/html" hx-target="body" hx-push-url="true"
+                    hx-confirm="Are you sure you want to delete this shopping list?">Delete</button></td>
         </tr>
         {% endfor %}
+        {% if grocery_lists|length == 10 %}
+        <tr>
+            <td colspan="5" style="text-align: center;">
+                <span hx-target="closest tr" hx-swap="outerHTML" hx-select="tbody > tr" hx-trigger="revealed"
+                    hx-get="/grocery_lists/html?page={{ page+1 }}">Loading</span>
+            </td>
+        </tr>
+        {% endif %}
     </tbody>
 </table>
-<div id="list">
-
-</div>
 {% endblock %}

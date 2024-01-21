@@ -1,9 +1,11 @@
 from http import HTTPStatus
+from time import sleep
 from uuid import UUID
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from pydantic import ValidationError
 
 from cr_scraper.api.schema.model import GroceryListResponse, Url, UrlAndTitle
 from cr_scraper.api.services.recipes import (
@@ -34,20 +36,38 @@ async def scrape(url: Url) -> Recipe:
     return scrape_recipe(str(url.url))
 
 
+@app.post("/recipes/scrape/html")
+async def url_validate(request: Request) -> str:
+    try:
+        async with request.form() as form:
+            _ = Url(url=form["url"])
+            return "URL OK!"
+    except ValidationError as ex:
+        return ", ".join([er["msg"] for er in ex.errors()])
+
+
 @app.get("/grocery_lists", response_model=list[GroceryListResponse])
 async def display_all_grocery_lists():  # -> Any | list[Any] | None:
     return get_all_grocery_lists()
 
 
 @app.get("/grocery_lists/html", response_class=HTMLResponse)
-async def show_grocery_lists(request: Request, q: str | None = None):
+async def show_grocery_lists(request: Request, q: str | None = None, page: int = 1):
+    errors = {}
     if q:
         grocery_lists = search_for_grocery_list(list_name=q)
     else:
-        grocery_lists = get_all_grocery_lists()
+        sleep(2)
+        grocery_lists = get_all_grocery_lists(page=page - 1)
     return templates.TemplateResponse(
         name="index.html",
-        context={"request": request, "grocery_lists": grocery_lists, "q": q},
+        context={
+            "request": request,
+            "grocery_lists": grocery_lists,
+            "q": q,
+            "errors": errors,
+            "page": page,
+        },
     )
 
 
@@ -55,12 +75,11 @@ async def show_grocery_lists(request: Request, q: str | None = None):
 async def show_grocery_lists_partial(request: Request):
     async with request.form() as form:
         q = form["q"]
-    if q:
-        grocery_lists = search_for_grocery_list(list_name=q)
-        return templates.TemplateResponse(
-            name="grocery_list/partial_search_results.html",
-            context={"request": request, "grocery_lists": grocery_lists},
-        )
+    grocery_lists = search_for_grocery_list(list_name=q)
+    return templates.TemplateResponse(
+        name="grocery_list/partial_search_results.html",
+        context={"request": request, "grocery_lists": grocery_lists},
+    )
 
 
 @app.post(
@@ -70,6 +89,18 @@ async def show_grocery_lists_partial(request: Request):
 )
 async def new_list(url: UrlAndTitle):
     return initialize_list(str(url.url), url.title)
+
+
+@app.post(
+    "/grocery_lists/new/html",
+    status_code=HTTPStatus.CREATED,
+)
+async def new_list_html(request: Request):
+    async with request.form() as form:
+        url = UrlAndTitle(url=form["url"], title=form["name"])
+
+    initialize_list(str(url.url), url.title)
+    return RedirectResponse("/grocery_lists/html", status_code=HTTPStatus.SEE_OTHER)
 
 
 @app.get(
@@ -177,7 +208,7 @@ async def edit_grocery_list_html_post(request: Request, id: UUID):
     return RedirectResponse(f"/grocery_lists/{id}/html", status_code=303)
 
 
-@app.post("/grocery_lists/{id}/delete/html", status_code=HTTPStatus.NO_CONTENT)
+@app.delete("/grocery_lists/{id}/html", status_code=HTTPStatus.NO_CONTENT)
 async def delete_grocery_list_html(request: Request, id: UUID):
     delete_list(id)
     return RedirectResponse("/grocery_lists/html", status_code=HTTPStatus.SEE_OTHER)

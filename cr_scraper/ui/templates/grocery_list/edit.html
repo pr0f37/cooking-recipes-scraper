@@ -14,9 +14,8 @@
     </fieldset>
 </form>
 
-<form action="/grocery_lists/{{ grocery_list.id }}/delete/html" method="post">
-    <button>Delete</button>
-</form>
+<button hx-delete="/grocery_lists/{{ grocery_list.id }}/html" hx-target="body" hx-push-url="true"
+    hx-confirm="Are you sure you want to delete this shopping list?">Delete</button>
 
 <a href="/grocery_lists">Back</a>
 {% endblock %}

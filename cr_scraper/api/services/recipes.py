@@ -15,10 +15,14 @@ def search_for_grocery_list(
     return g_list
 
 
-def get_all_grocery_lists(repository: type[Repository] = SQLRepository):
+def get_all_grocery_lists(
+    page: int | None = None, repository: type[Repository] = SQLRepository
+):
     g_list = []
     with repository() as repo:
         g_list = repo.get(GroceryList)
+    if page is not None:
+        g_list = g_list[page * 10 : (page + 1) * 10]  # noqa
     return g_list
 
 
