@@ -1,14 +1,10 @@
 {% extends 'layout.html' %}
 {% block content %}
 <div id="main">
-    <input id="search" type="search" name="q" hx-get="/grocery_lists/html" hx-select="tbody > tr" hx-target="tbody"
-        hx-indicator="#spinner" hx-push-url="true" hx-trigger="search, keyup delay:500ms" value="{{q or ''}}" />
-    <img id="spinner" class="htmx-indicator" src="{{ url_for('static', path='/img/spinner.gif') }}"
-        alt="Request in flight..." />
     <form>
         <fieldset>
-            <legend>Create new shopping list</legend>
-            <label for="shopping_list_name">Shopping list name</label>
+            <legend>New shopping list</legend>
+            <label for="shopping_list_name">Name</label>
             <input id="shopping_list_name" type="text" name="name" value="{{ '' }}" />
             <span class="error">{{ errors['name']}}</span>
             <br>
@@ -17,28 +13,40 @@
                 hx-target="next .error" hx-trigger="change, keyup delay:500ms changed" />
             <span class="error">{{ errors['url']}}</span>
             <br>
-            <button hx-post="/grocery_lists/new/html" hx-target="body">New shopping list</button>
+            <button hx-post="/grocery_lists/new/html" hx-target="body">Create</button>
+            <span hx-get="/grocery_lists/count" hx-trigger="revealed"><img id="spinner"
+                    src="{{ url_for('static', path='/img/spinner.gif') }}" class="htmx-indicator" /></span>
         </fieldset>
     </form>
+    <input id="search" type="search" name="q" hx-get="/grocery_lists/html" hx-select="tbody > tr"
+        hx-target="#table_body" hx-indicator="#spinner" hx-push-url="true" hx-trigger="search, keyup delay:500ms"
+        value="{{q or ''}}" placeholder="Type list name here to search..." style="width: 50%;" />
+    <img id="spinner" class="htmx-indicator" src="{{ url_for('static', path='/img/spinner.gif') }}"
+        alt="Request in flight..." />
 </div>
-<table>
-    <thead>
-        <tr>
-            <th>id</th>
-            <th>name</th>
-            <th>number of groceries</th>
-        </tr>
-    </thead>
-    <tbody id="table_body">
-        {% include 'grocery_list/rows.html' %}
-        {% if grocery_lists|length == 10 %}
-        <tr>
-            <td colspan="5" style="text-align: center;">
-                <span hx-target="closest tr" hx-swap="outerHTML" hx-select="tbody > tr" hx-trigger="revealed"
-                    hx-get="/grocery_lists/html?page={{ page+1 }}">Loading</span>
-            </td>
-        </tr>
-        {% endif %}
-    </tbody>
-</table>
+<form>
+    <table style="border-style: solid;">
+        <thead>
+            <tr>
+                <th>select</th>
+                <th>name</th>
+                <th>number of groceries</th>
+            </tr>
+        </thead>
+        <tbody id="table_body">
+            {% include 'grocery_list/rows.html' %}
+            {% if grocery_lists|length == 10 %}
+            <tr>
+                <td colspan="6" style="text-align: center;">
+                    <span hx-target="closest tr" hx-swap="outerHTML" hx-select="tbody > tr" hx-trigger="revealed"
+                        hx-get="/grocery_lists/html?page={{ page+1 }}">Loading</span>
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    <button hx-delete="/grocery_lists/html" hx-confirm="Are you sure you want to delete these lists?" hx-target="body">
+        Delete Selected
+    </button>
+</form>
 {% endblock %}

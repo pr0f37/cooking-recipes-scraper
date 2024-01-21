@@ -2,7 +2,7 @@ from http import HTTPStatus
 from time import sleep
 from uuid import UUID
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -41,13 +41,13 @@ async def scrape(url: Url) -> Recipe:
 
 
 @app.post("/recipes/scrape/html")
-async def url_validate(request: Request) -> str:
+async def url_validate(request: Request):
     try:
         async with request.form() as form:
             _ = Url(url=form["url"])
-            return "URL OK!"
+            return Response(content="URL OK!")
     except ValidationError as ex:
-        return ", ".join([er["msg"] for er in ex.errors()])
+        return Response(content=", ".join([er["msg"] for er in ex.errors()]))
 
 
 @app.get("/grocery_lists", response_model=list[GroceryListResponse])
@@ -62,7 +62,7 @@ async def show_grocery_lists(request: Request, q: str | None = None, page: int =
         sleep(2)
         grocery_lists = search_for_grocery_list(list_name=q)
         if request.headers.get("hx-trigger") == "search":
-            templates.TemplateResponse(
+            return templates.TemplateResponse(
                 name="grocery_list/rows.html",
                 context={"request": request, "grocery_lists": grocery_lists},
             )
@@ -77,6 +77,13 @@ async def show_grocery_lists(request: Request, q: str | None = None, page: int =
             "page": page,
         },
     )
+
+
+@app.get("/grocery_lists/count")
+async def count_all_grocery_lists(request: Request):
+    sleep(2)
+    count = len(get_all_grocery_lists())
+    return Response(content=f"({count} lists total)")
 
 
 @app.post("/grocery_lists/html", response_class=HTMLResponse)
@@ -172,10 +179,10 @@ async def add_recipe_to_groceries_list_html(request: Request, id: UUID):
         url = Url(url=form["url"])
     try:
         _ = update_list_add_recipe(str(url.url), id)
-        return RedirectResponse("/grocery_lists/html", status_code=303)
+        return RedirectResponse(f"/grocery_lists/{id}/html", status_code=303)
     except NotExistInRepositoryError:
         return templates.TemplateResponse(
-            name="grocery_list/add_recipe.html",
+            name="grocery_list/add_recipe/html",
             context={
                 "request": request,
                 "grocery_list": GroceryList(id=id, name="Not exist", groceries=[]),
@@ -216,7 +223,18 @@ async def edit_grocery_list_html_post(request: Request, id: UUID):
     return RedirectResponse(f"/grocery_lists/{id}/html", status_code=303)
 
 
-@app.delete("/grocery_lists/{id}/html", status_code=HTTPStatus.NO_CONTENT)
+@app.delete("/grocery_lists/{id}/html")
 async def delete_grocery_list_html(request: Request, id: UUID):
     delete_list(id)
+    if request.headers.get("hx-trigger") == "delete-btn":
+        return RedirectResponse("/grocery_lists/html", status_code=HTTPStatus.SEE_OTHER)
+    return Response(content="")
+
+
+@app.delete("/grocery_lists/html")
+async def delete_all_grocery_lists_html(request: Request):
+    async with request.form() as form:
+        list_ids = list(map(lambda x: UUID(x), form.getlist("selected_list_ids")))
+    for id in list_ids:
+        delete_list(id)
     return RedirectResponse("/grocery_lists/html", status_code=HTTPStatus.SEE_OTHER)
