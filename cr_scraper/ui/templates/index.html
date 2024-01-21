@@ -1,16 +1,10 @@
 {% extends 'layout.html' %}
 {% block content %}
 <div id="main">
-    <form>
-        <fieldset>
-            <legend>Search</legend>
-            <label for="search">Shopping list name</label>
-            <input id="search" type="search" name="q" value="{{ q or '' }}" />
-            <button hx-post="/grocery_lists/html" hx-target="#table_body">
-                Search the gocery lists
-            </button>
-        </fieldset>
-    </form>
+    <input id="search" type="search" name="q" hx-get="/grocery_lists/html" hx-select="tbody > tr" hx-target="tbody"
+        hx-indicator="#spinner" hx-push-url="true" hx-trigger="search, keyup delay:500ms" value="{{q or ''}}" />
+    <img id="spinner" class="htmx-indicator" src="{{ url_for('static', path='/img/spinner.gif') }}"
+        alt="Request in flight..." />
     <form>
         <fieldset>
             <legend>Create new shopping list</legend>
@@ -31,23 +25,12 @@
     <thead>
         <tr>
             <th>id</th>
-            <th>shopping list name</th>
-            <th>how many groceries</th>
+            <th>name</th>
+            <th>number of groceries</th>
         </tr>
     </thead>
     <tbody id="table_body">
-        {% for list in grocery_lists %}
-        <tr>
-            <td>{{ list.id }}</td>
-            <td style="border-right: 1px; border-color: black; border-right-style: solid;">{{ list.name }}</td>
-            <td style="border-right: 1px; border-color: black; border-right-style: solid;">{{list.groceries|length}}
-            </td> <!-- #TODO -->
-            <td><a href="/grocery_lists/{{ list.id }}/add_recipe/html">ADD NEW RECIPE TO LIST</a></td>
-            <td><a href="/grocery_lists/{{ list.id }}/html">LIST DETAILS</a></td>
-            <td><button hx-delete="/grocery_lists/{{ list.id }}/html" hx-target="body" hx-push-url="true"
-                    hx-confirm="Are you sure you want to delete this shopping list?">Delete</button></td>
-        </tr>
-        {% endfor %}
+        {% include 'grocery_list/rows.html' %}
         {% if grocery_lists|length == 10 %}
         <tr>
             <td colspan="5" style="text-align: center;">

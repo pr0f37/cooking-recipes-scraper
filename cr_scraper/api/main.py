@@ -4,6 +4,7 @@ from uuid import UUID
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import ValidationError
 
@@ -24,6 +25,9 @@ from cr_scraper.scraper.model import Recipe
 
 templates = Jinja2Templates("cr_scraper/ui/templates")
 app = FastAPI()
+app.mount(
+    "/static", StaticFiles(directory="cr_scraper/ui/templates/static"), name="static"
+)
 
 
 @app.get("/")
@@ -55,16 +59,20 @@ async def display_all_grocery_lists():  # -> Any | list[Any] | None:
 async def show_grocery_lists(request: Request, q: str | None = None, page: int = 1):
     errors = {}
     if q:
-        grocery_lists = search_for_grocery_list(list_name=q)
-    else:
         sleep(2)
+        grocery_lists = search_for_grocery_list(list_name=q)
+        if request.headers.get("hx-trigger") == "search":
+            templates.TemplateResponse(
+                name="grocery_list/rows.html",
+                context={"request": request, "grocery_lists": grocery_lists},
+            )
+    else:
         grocery_lists = get_all_grocery_lists(page=page - 1)
     return templates.TemplateResponse(
         name="index.html",
         context={
             "request": request,
             "grocery_lists": grocery_lists,
-            "q": q,
             "errors": errors,
             "page": page,
         },

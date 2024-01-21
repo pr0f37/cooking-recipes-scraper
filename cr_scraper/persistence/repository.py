@@ -63,7 +63,7 @@ class SQLRepository(Repository):
             db_model = [
                 elem
                 for elem in self.session.scalars(
-                    select(model).where(model.name.like(f"%{name}%"))
+                    select(model).where(model.name.ilike(f"%{name}%"))
                 ).all()
             ]
             if not db_model:
