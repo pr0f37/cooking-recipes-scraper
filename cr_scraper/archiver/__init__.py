@@ -30,6 +30,7 @@ class Archiver:
             if cls.archiver.status() == "Running":
                 if cls.archiver._progress < 1:
                     cls.archiver._progress += 0.1
+                    cls.archiver._progress = round(cls.archiver._progress, 1)
                 else:
                     cls.archiver.state = "Complete"
             return cls.archiver

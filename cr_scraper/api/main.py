@@ -132,7 +132,11 @@ async def archive_status(request: Request):
 @app.get("/grocery_lists/archive/file")
 async def archive_content(request: Request):
     manager = Archiver.get()
-    return FileResponse(manager.archive_file())
+    return FileResponse(
+        manager.archive_file(),
+        media_type="application/octet-stream",
+        filename="archive.json",
+    )
 
 
 @app.get(
@@ -238,6 +242,16 @@ async def edit_grocery_list_html_post(request: Request, id: UUID):
         )
 
     return RedirectResponse(f"/grocery_lists/{id}/html", status_code=303)
+
+
+@app.delete("/grocery_lists/archive/html")
+async def clear_archive(request: Request):
+    archiver = Archiver.get()
+    archiver.reset()
+    return templates.TemplateResponse(
+        name="grocery_list/archive_ui.html",
+        context={"request": request, "archiver": archiver},
+    )
 
 
 @app.delete("/grocery_lists/{id}/html")

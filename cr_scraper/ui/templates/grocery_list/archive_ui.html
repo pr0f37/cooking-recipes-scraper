@@ -4,17 +4,17 @@
         Download Contact Archive
     </button>
     {% elif archiver.status() == "Running" %}
-    <div class="progress">
-        <div hx-get="/grocery_lists/archive/html" hx-trigger="load delay:500ms">
-            Creating Archive...
-            <div class="progress">
-                <div class="progress-bar" role="progressbar" aria-valuenow="{{ archiver.progress() * 100}}"
-                    style="width: {{ archiver.progress() * 100}}%; height: 10px;">{{archiver.progress() * 100}}%</div>
+    <div hx-get="/grocery_lists/archive/html" hx-trigger="load delay:500ms">
+        Creating Archive... {{archiver.progress() * 100}}%
+        <div class="progress">
+            <div class="progress-bar" id="archive-progress" role="progressbar"
+                aria-valuenow="{{ archiver.progress() * 100}}" style="width: {{ archiver.progress() * 100}}%; ">
             </div>
         </div>
     </div>
     {% elif archiver.status() == "Complete" %}
-    <a hx-boost="false" href="/grocery_lists/archive/file">Archive Ready! Click here to download. &downarrow;</a>
-
+    <a hx-boost="false" href="/grocery_lists/archive/file" _="on load click() me">Archive Ready! Click here to download.
+        &downarrow;</a>
+    <button hx-delete="/grocery_lists/archive/html">Clear Download</button>
     {% endif %}
 </div>
