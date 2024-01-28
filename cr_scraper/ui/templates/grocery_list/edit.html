@@ -1,7 +1,7 @@
 {% extends 'layout.html' %}
 {% block content %}
 
-<form action="/grocery_lists/{{ grocery_list.id }}/edit/html" method="post">
+<form action="/grocery_lists/{{ grocery_list.id }}/edit" method="post">
     <fieldset>
         <legend>Grocery List values</legend>
         <p>
@@ -14,8 +14,8 @@
     </fieldset>
 </form>
 
-<button hx-delete="/grocery_lists/{{ grocery_list.id }}/html" hx-target="body" hx-push-url="true"
+<button hx-delete="/grocery_lists/{{ grocery_list.id }}" hx-target="body" hx-push-url="true"
     hx-confirm="Are you sure you want to delete this shopping list?">Delete</button>
 
-<a href="/grocery_lists/html">Back</a>
+<a href="/grocery_lists">Back</a>
 {% endblock %}

@@ -2,9 +2,7 @@ class Archiver:
     archiver = None
 
     def __init__(self):
-        self.state = "Waiting"
-        self.path = ""
-        self._progress = 0
+        self.reset()
 
     def run(self):
         self.state = "Running"
@@ -15,7 +13,7 @@ class Archiver:
 
     def reset(self):
         self.state = "Waiting"
-        self.path = None
+        self.path = ""
         self._progress = 0
 
     def archive_file(self):

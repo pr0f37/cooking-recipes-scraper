@@ -94,13 +94,13 @@ class GroceryListElement:
 
 @dataclass
 class GroceryList:
-    id: UUID = uuid4()
+    id: UUID
     name: str | None = None
     groceries: list[GroceryListElement] = field(default_factory=list)
 
-    def __init__(self, name: str | None = None):
-        self.id = uuid4()
-        self.name: str | None = name
+    def __init__(self, id: UUID | None = None, name: str | None = None):
+        self.id = id or uuid4()
+        self.name = name
         self.groceries: list[GroceryListElement] = []
 
     def add_element(self, new_element: GroceryListElement):

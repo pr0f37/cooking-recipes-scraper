@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 {% block content %}
-<form action="/grocery_lists/{{grocery_list.id}}/add_recipe/html" method="post">
+<form action="/grocery_lists/{{grocery_list.id}}/add_recipe" method="post">
     <fieldset>
         <legend>Add new recipe to {{ grocery_list.name }}</legend>
         <p>
@@ -12,6 +12,6 @@
     </fieldset>
 </form>
 <p>
-    <a href="/grocery_lists/html">Back</a>
+    <a href="/grocery_lists">Back</a>
 </p>
 {% endblock %}
