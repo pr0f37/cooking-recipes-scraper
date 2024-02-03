@@ -20,29 +20,44 @@
     </form>
     <input id="search" type="search" name="q" hx-get="/grocery_lists" hx-select="tbody > tr" hx-target="#table_body"
         hx-indicator="#spinner" hx-push-url="true" hx-trigger="search, keyup delay:500ms" value="{{q or ''}}"
+        _="on keydown[ctrlKey and code is 'KeyF'] from the window me.focus()"
         placeholder="Type list name here to search..." style="width: 50%;" />
     <img id="spinner" class="htmx-indicator" src="{{ url_for('static', path='/img/spinner.gif') }}"
         alt="Request in flight..." />
 </div>
-<form>
+<form x-data="{ selected: []}">
     <table style="border-style: solid;">
         <thead>
             <tr>
                 <th>select</th>
                 <th>name</th>
-                <th>number of groceries</th>
+                <th>groceries</th>
             </tr>
         </thead>
         <tbody id="table_body">
             {% include 'grocery_list/rows.html' %}
             {% if grocery_lists|length == 10 %}
             <tr>
-                <td colspan="6" style="text-align: center;">
+                <td colspan="4" style="text-align: center;">
                     <span hx-target="closest tr" hx-swap="outerHTML" hx-select="tbody > tr" hx-trigger="revealed"
                         hx-get="/grocery_lists?page={{ page+1 }}">Loading</span>
                 </td>
             </tr>
             {% endif %}
+            <template x-if="selected.length > 0">
+                <tr>
+                    <td colspan="4" style="text-align: center">
+                        <div class="box warning tool-bar">
+                            <slot x-text="selected.length"></slot>
+                            grocery lists selected
+                            <button type="button" class="bad bg color border"
+                                @click="confirm(`Delete ${selected.length} contacts?`) &&
+                            htmx.ajax('DELETE', '/grocery_lists', {source: $root, target: document.body})">Delete</button>
+                            <button type="button" @click="selected=[]">Cancel</button>
+                        </div>
+                    </td>
+                </tr>
+            </template>
         </tbody>
     </table>
     <button hx-delete="/grocery_lists" hx-confirm="Are you sure you want to delete these lists?" hx-target="body">
