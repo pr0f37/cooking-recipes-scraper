@@ -8,7 +8,7 @@ from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import ValidationError
 
-from cr_scraper.api.schema.model import GroceryListResponse, Url, UrlAndTitle
+from cr_scraper.api.schema.model import Url, UrlAndTitle
 from cr_scraper.api.services.recipes import (
     delete_list,
     get_all_grocery_lists,
@@ -43,7 +43,7 @@ async def url_validate(url: Annotated[str, Form()] = ""):
 @router.get("/grocery_lists", response_class=HTMLResponse)
 async def show_grocery_lists(
     request: Request,
-    hx_trigger: Annotated[str | None, Header()],
+    hx_trigger: Annotated[str | None, Header()] = None,
     q: str | None = None,
     page: int = 1,
 ):
@@ -90,7 +90,7 @@ async def new_list_html(
     return RedirectResponse("/grocery_lists", status_code=HTTPStatus.SEE_OTHER)
 
 
-@router.get("/grocery_lists/archive")
+@router.get("/grocery_lists/archive", response_class=HTMLResponse)
 async def archive_status(request: Request):
     archiver = Archiver.get()
     return templates.TemplateResponse(
@@ -110,8 +110,7 @@ async def archive_content():
 
 
 @router.get(
-    "/grocery_lists/{id}",
-    status_code=HTTPStatus.OK,
+    "/grocery_lists/{id}", status_code=HTTPStatus.OK, response_class=HTMLResponse
 )
 async def get_grocery_list_html(request: Request, id: UUID):
     try:
@@ -124,7 +123,7 @@ async def get_grocery_list_html(request: Request, id: UUID):
         raise HTTPException(HTTPStatus.NOT_FOUND, f"Grocery list {id} not exists")
 
 
-@router.get("/grocery_lists/{id}/add_recipe")
+@router.get("/grocery_lists/{id}/add_recipe", response_class=HTMLResponse)
 async def add_recipe_to_list_view(request: Request, id: UUID):
     try:
         grocery_list = get_list(id)
@@ -139,7 +138,7 @@ async def add_recipe_to_list_view(request: Request, id: UUID):
 @router.post(
     "/grocery_lists/{id}/add_recipe",
     status_code=HTTPStatus.CREATED,
-    response_model=GroceryListResponse,
+    response_class=HTMLResponse,
 )
 async def add_recipe_to_groceries_list_html(
     request: Request, id: UUID, url: Annotated[str, Form()] = ""
@@ -159,7 +158,7 @@ async def add_recipe_to_groceries_list_html(
         )
 
 
-@router.get("/grocery_lists/{id}/edit")
+@router.get("/grocery_lists/{id}/edit", response_class=HTMLResponse)
 async def edit_grocery_list_html(request: Request, id: UUID):
     try:
         grocery_list = get_list(id)
@@ -172,7 +171,10 @@ async def edit_grocery_list_html(request: Request, id: UUID):
     )
 
 
-@router.post("/grocery_lists/{id}/edit")
+@router.post(
+    "/grocery_lists/{id}/edit",
+    response_class=HTMLResponse,
+)
 async def edit_grocery_list_html_post(
     request: Request, id: UUID, list_name: Annotated[str, Form()]
 ):
@@ -191,7 +193,10 @@ async def edit_grocery_list_html_post(
     return RedirectResponse(f"/grocery_lists/{id}", status_code=303)
 
 
-@router.delete("/grocery_lists/archive")
+@router.delete(
+    "/grocery_lists/archive",
+    response_class=HTMLResponse,
+)
 async def clear_archive(request: Request):
     archiver = Archiver.get()
     archiver.reset()
@@ -203,7 +208,7 @@ async def clear_archive(request: Request):
 
 @router.delete("/grocery_lists/{id}")
 async def delete_grocery_list_html(
-    id: UUID, hx_trigger: Annotated[str | None, Header()]
+    id: UUID, hx_trigger: Annotated[str | None, Header()] = None
 ):
     delete_list(id)
     if hx_trigger == "delete-btn":
