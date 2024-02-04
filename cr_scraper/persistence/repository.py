@@ -24,7 +24,7 @@ class Repository(ABC, ContextDecorator):
         raise NotImplementedError
 
     @abstractmethod
-    def get(self, model, id: UUID | None = None):
+    def get(self, model, **kwargs):
         raise NotImplementedError
 
     @abstractmethod
@@ -55,8 +55,21 @@ class SQLRepository(Repository):
         self.session.close()
         return False
 
-    def get(self, model, id: UUID | None = None):
-        if id:
+    def get(self, model, **kwargs):
+        # id: UUID | None = None):
+        name = kwargs.get("name")
+        id = kwargs.get("id")
+        if isinstance(name, str):
+            db_model = [
+                elem
+                for elem in self.session.scalars(
+                    select(model).where(model.name.ilike(f"%{name}%"))
+                ).all()
+            ]
+            if not db_model:
+                raise NotExistInRepositoryError
+            return db_model
+        if isinstance(id, UUID):
             db_model = self.session.scalar(select(model).where(model.id == id))
             if db_model is None:
                 raise NotExistInRepositoryError
@@ -69,8 +82,8 @@ class SQLRepository(Repository):
     def save(self) -> None:
         self.session.commit()
 
-    def delete(self) -> None:
-        pass
+    def delete(self, model) -> None:
+        self.session.delete(model)
 
 
 class NotExistInRepositoryError(Exception):

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="">
+
+<head>
+    <title>Recipes Scraper</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/transition.css') }}">
+    <link rel="stylesheet" href="https://the.missing.style/v0.2.0/missing.min.css">
+    <script type="text/javascript" src="{{ url_for('static', path='/js/overflow_menu.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', path='/js/sweet_confirm.js') }}"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.2"
+        integrity="sha384-L6OqL9pRWyyFU3+/bjdSri+iIphTN/bvYyM37tICVyOJkWZLpP2vGn6VUEXgzg6h"
+        crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/hyperscript.org"></script>
+</head>
+
+<body hx-boost="true">
+    <script src="https://unpkg.com/alpinejs"></script>
+    <main>
+        <header>
+            <h1>
+                <all-caps>Recipes Scraper</all-caps>
+                <sub-title>A Demo Application</sub-title>
+            </h1>
+        </header>
+        <div hx-boost="true">
+            <a href="/grocery_lists">Shopping lists</a>
+            <a href="/settings">Settings</a>
+            <a href="/help">Help</a>
+        </div>
+        {% block content %}
+        {% endblock %}
+    </main>
+</body>
+
+</html>

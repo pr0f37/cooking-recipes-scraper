@@ -45,8 +45,3 @@ jobs:
           report_paths: "**/test_results/junit.xml"
           detailed_summary: true
           include_passed: true
-      - name: Get Cover
-        uses: orgoro/coverage@v3.1
-        with:
-          coverageFile: test_results/coverage.xml
-          token: ${{ secrets.COVERAGE_TOKEN }}

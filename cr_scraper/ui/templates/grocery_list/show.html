@@ -1,0 +1,21 @@
+{% extends 'layout.html' %}
+{% block content %}
+<h1>{{ grocery_list.name }}</h1>
+
+<div>
+    {% for grocery in grocery_list.groceries %}
+    <div>{{ grocery.name }} - {{ grocery.quantity }} {{ grocery.unit }}</div>
+    {% endfor %}
+</div>
+
+<p>
+    <a href="/grocery_lists/{{ grocery_list.id }}/add_recipe">Add recipe</a>
+    <a href="/grocery_lists/{{grocery_list.id}}/edit">Edit</a>
+    <a href="/grocery_lists">Back</a>
+    <button id="delete-btn" hx-delete="/grocery_lists/{{ grocery_list.id }}" hx-push-url="true"
+        hx-confirm="Are you sure you want to delete this contact?" hx-target="body">
+        Delete
+    </button>
+</p>
+
+{% endblock %}

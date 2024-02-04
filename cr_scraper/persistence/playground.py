@@ -119,10 +119,10 @@ with SQLRepository() as repo:
     all_grocery_lists = repo.get(GroceryList)
     groceries = repo.get(GroceryListElement)
 
-for g_list in all_grocery_lists:
+for g_list in all_grocery_lists:  # type: ignore
     print(g_list)
 
-for g in groceries:
+for g in groceries:  # type: ignore
     print(g)
 
 # %%

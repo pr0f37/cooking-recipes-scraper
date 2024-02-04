@@ -62,7 +62,7 @@ class GroceryListElement:
         self.quantity += other._convert(self.unit)
         return self
 
-    def __add__(self, other) -> Self:
+    def __add__(self, other) -> "GroceryListElement":
         if not isinstance(other, GroceryListElement) or self.name != other.name:
             raise MismatchError
         new = GroceryListElement(self.name, self.quantity, self.unit)
@@ -94,14 +94,19 @@ class GroceryListElement:
 
 @dataclass
 class GroceryList:
-    id: UUID = uuid4()
+    id: UUID
     name: str | None = None
     groceries: list[GroceryListElement] = field(default_factory=list)
 
-    # def __init__(self, name: str | None = None):
-    #     self.id = uuid4()
-    #     self.name: str | None = name
-    #     self.groceries: list[GroceryListElement] = []
+    def __init__(
+        self,
+        id: UUID | None = None,
+        name: str | None = None,
+        groceries: list[GroceryListElement] | None = None,
+    ):
+        self.id = id or uuid4()
+        self.name = name
+        self.groceries = groceries or []
 
     def add_element(self, new_element: GroceryListElement):
         if len(self.groceries) == 0:

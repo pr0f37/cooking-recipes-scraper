@@ -1,0 +1,21 @@
+{% for list in grocery_lists %}
+<tr>
+    <td><input type="checkbox" name="selected_list_ids" value="{{ list.id }}" x-model="selected"></td>
+    <td>{{ list.name }}</td>
+    <td>{{list.groceries|length}}</td>
+    <td>
+        <div data-overflow-menu>
+            <button type="button" aria-haspopup="menu" aria-controls="groceries-menu-{{ list.id }}">
+                Options
+            </button>
+            <div role="menu" hidden id="groceries-menu-{{ list.id }}">
+                <a role="menuitem" href="/grocery_lists/{{ list.id }}/edit">Edit</a>
+                <a role="menuitem" href="/grocery_lists/{{ list.id }}">View</a>
+                <a role="menuitem" href="#" hx-delete="/grocery_lists/{{ list.id }}" hx-target="closest tr"
+                    hx-swap="outerHTML swap:1s"
+                    hx-confirm="Are you sure you want to delete this shopping list?">Delete</a>
+            </div>
+        </div>
+    </td>
+</tr>
+{% endfor %}
