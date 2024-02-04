@@ -98,10 +98,15 @@ class GroceryList:
     name: str | None = None
     groceries: list[GroceryListElement] = field(default_factory=list)
 
-    def __init__(self, id: UUID | None = None, name: str | None = None):
+    def __init__(
+        self,
+        id: UUID | None = None,
+        name: str | None = None,
+        groceries: list[GroceryListElement] | None = None,
+    ):
         self.id = id or uuid4()
         self.name = name
-        self.groceries: list[GroceryListElement] = []
+        self.groceries = groceries or []
 
     def add_element(self, new_element: GroceryListElement):
         if len(self.groceries) == 0:

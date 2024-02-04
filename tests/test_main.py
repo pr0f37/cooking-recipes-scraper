@@ -23,7 +23,7 @@ grocery_list = GroceryList(
 
 def test_scrape_recipe(mocker):
     scrape_recipe_mock = mocker.patch(
-        "cr_scraper.api.main.scrape_recipe",
+        "cr_scraper.api.router.api.scrape_recipe",
         return_value=Recipe(
             url=http_test_url,
             difficulty="*",
@@ -32,7 +32,7 @@ def test_scrape_recipe(mocker):
             ingredients=[Ingredient(name="test_ingredient", quantity=1.0, unit="kg")],
         ),
     )
-    response = client.post("/recipes/scrape", json={"url": test_url})
+    response = client.post("/api/recipes/scrape", json={"url": test_url})
     scrape_recipe_mock.assert_called_with(http_test_url)
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
@@ -58,8 +58,8 @@ def test_scrape_recipe(mocker):
     ],
 )
 def test_scrape_recipe_errors(mocker, url, type, msg):
-    scrape_recipe_mock = mocker.patch("cr_scraper.api.main.scrape_recipe")
-    response = client.post("/recipes/scrape", json={"url": url})
+    scrape_recipe_mock = mocker.patch("cr_scraper.api.router.api.scrape_recipe")
+    response = client.post("/api/recipes/scrape", json={"url": url})
     assert response.json()["detail"][0]["type"] == type
     assert response.json()["detail"][0]["loc"] == ["body", "url"]
     assert response.json()["detail"][0]["msg"] == msg
@@ -70,10 +70,10 @@ def test_scrape_recipe_errors(mocker, url, type, msg):
 
 def test_display_all_grocery_lists(mocker):
     mocker.patch(
-        "cr_scraper.api.main.get_all_grocery_lists",
+        "cr_scraper.api.router.api.get_all_grocery_lists",
         return_value=[grocery_list],
     )
-    response = client.get("/grocery_lists")
+    response = client.get("/api/grocery_lists")
     assert response.status_code == HTTPStatus.OK
     assert response.json() == [
         {
@@ -86,7 +86,7 @@ def test_display_all_grocery_lists(mocker):
 
 def test_display_all_grocery_lists_empty_groceries(mocker):
     mocker.patch(
-        "cr_scraper.api.main.get_all_grocery_lists",
+        "cr_scraper.api.router.api.get_all_grocery_lists",
         return_value=[
             GroceryList(
                 groceries=[],
@@ -95,7 +95,7 @@ def test_display_all_grocery_lists_empty_groceries(mocker):
             )
         ],
     )
-    response = client.get("/grocery_lists")
+    response = client.get("/api/grocery_lists")
     assert response.status_code == HTTPStatus.OK
     assert response.json() == [
         {
@@ -108,20 +108,20 @@ def test_display_all_grocery_lists_empty_groceries(mocker):
 
 def test_display_all_grocery_lists_empty_lists(mocker):
     mocker.patch(
-        "cr_scraper.api.main.get_all_grocery_lists",
+        "cr_scraper.api.router.api.get_all_grocery_lists",
         return_value=[],
     )
-    response = client.get("/grocery_lists")
+    response = client.get("/api/grocery_lists")
     assert response.status_code == HTTPStatus.OK
     assert response.json() == []
 
 
 def test_add_recipe_to_groceries_list(mocker):
     update_list_mock = mocker.patch(
-        "cr_scraper.api.main.update_list", return_value=grocery_list
+        "cr_scraper.api.router.api.update_list_add_recipe", return_value=grocery_list
     )
     response = client.post(
-        f"/grocery_lists/{list_uuid}/add_recipe", json={"url": test_url}
+        f"/api/grocery_lists/{list_uuid}/add_recipe", json={"url": test_url}
     )
     assert response.status_code == HTTPStatus.CREATED
     assert response.json() == {
@@ -134,11 +134,11 @@ def test_add_recipe_to_groceries_list(mocker):
 
 def test_add_recipe_to_groceries_list_error(mocker):
     update_list_mock = mocker.patch(
-        "cr_scraper.api.main.update_list",
+        "cr_scraper.api.router.api.update_list_add_recipe",
         side_effect=NotExistInRepositoryError,
     )
     response = client.post(
-        f"/grocery_lists/{list_uuid}/add_recipe", json={"url": test_url}
+        f"/api/grocery_lists/{list_uuid}/add_recipe", json={"url": test_url}
     )
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json() == {"detail": f"Grocery list {list_uuid} not exists"}
@@ -160,10 +160,12 @@ def test_add_recipe_to_groceries_list_error(mocker):
 )
 def test_add_recipe_to_groceries_list_marshalling_error(mocker, url, type, msg):
     update_list_mock = mocker.patch(
-        "cr_scraper.api.main.update_list",
+        "cr_scraper.api.router.api.update_list_add_recipe",
         side_effect=NotExistInRepositoryError,
     )
-    response = client.post(f"/grocery_lists/{list_uuid}/add_recipe", json={"url": url})
+    response = client.post(
+        f"/api/grocery_lists/{list_uuid}/add_recipe", json={"url": url}
+    )
     assert response.json()["detail"][0]["type"] == type
     assert response.json()["detail"][0]["loc"] == ["body", "url"]
     assert response.json()["detail"][0]["msg"] == msg
