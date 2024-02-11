@@ -24,7 +24,15 @@ class Repository(ABC, ContextDecorator):
         raise NotImplementedError
 
     @abstractmethod
-    def get(self, model, **kwargs):
+    def get_all(self, model, **kwargs):
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_by_id(self, model, id: UUID):
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_by_name(self, model, name: str):
         raise NotImplementedError
 
     @abstractmethod
@@ -55,26 +63,25 @@ class SQLRepository(Repository):
         self.session.close()
         return False
 
-    def get(self, model, **kwargs):
-        # id: UUID | None = None):
-        name = kwargs.get("name")
-        id = kwargs.get("id")
-        if isinstance(name, str):
-            db_model = [
-                elem
-                for elem in self.session.scalars(
-                    select(model).where(model.name.ilike(f"%{name}%"))
-                ).all()
-            ]
-            if not db_model:
-                raise NotExistInRepositoryError
-            return db_model
-        if isinstance(id, UUID):
-            db_model = self.session.scalar(select(model).where(model.id == id))
-            if db_model is None:
-                raise NotExistInRepositoryError
-            return db_model
+    def get_all(self, model) -> list:
         return [elem for elem in self.session.scalars(select(model)).all()]
+
+    def get_by_id(self, model, id: UUID):
+        db_model = self.session.scalar(select(model).where(model.id == id))
+        if db_model is None:
+            raise NotExistInRepositoryError
+        return db_model
+
+    def get_by_name(self, model, name: str):
+        db_model = [
+            elem
+            for elem in self.session.scalars(
+                select(model).where(model.name.ilike(f"%{name}%"))
+            ).all()
+        ]
+        if not db_model:
+            raise NotExistInRepositoryError
+        return db_model
 
     def add(self, model) -> None:
         self.session.add(model)
