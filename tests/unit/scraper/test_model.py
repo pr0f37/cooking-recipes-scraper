@@ -1,7 +1,7 @@
 from pytest import raises
 
 from cr_scraper.scraper.exceptions import SourceNotRecognisedError
-from cr_scraper.scraper.model import Recipe, RecipesSource
+from cr_scraper.scraper.model import Ingredient, Recipe, RecipesSource
 
 
 def test_source_not_recognised():
@@ -31,7 +31,10 @@ def test_source_recognised_longer_url():
 def test_recipe_class_mandatory_elements():
     recipe = Recipe(
         url="test_url",
-        ingredients=["ingredient1", "ingredient2"],
+        ingredients=[
+            Ingredient("ingredient1", 1, "handful"),
+            Ingredient("ingredient2", 2, "test"),
+        ],
         title="test_title",
     )
     assert recipe is not None

@@ -11,7 +11,7 @@ def search_for_grocery_list(
 ):
     g_list = []
     with repository() as repo:
-        g_list = repo.get(GroceryList, name=list_name)
+        g_list = repo.get_by_name(GroceryList, name=list_name)
     return g_list
 
 
@@ -20,7 +20,7 @@ def get_all_grocery_lists(
 ):
     g_list = []
     with repository() as repo:
-        g_list = repo.get(GroceryList)
+        g_list = repo.get_all(GroceryList)
     if page is not None:
         g_list = g_list[page * 10 : (page + 1) * 10]  # noqa
     return g_list
@@ -56,11 +56,9 @@ def update_list_add_recipe(
     return get_list(id)
 
 
-def get_list(
-    id: UUID, repository: type[Repository] = SQLRepository
-) -> GroceryList | None:
+def get_list(id: UUID, repository: type[Repository] = SQLRepository) -> GroceryList:
     with repository() as repo:
-        groceries = repo.get(GroceryList, id=id)
+        groceries = repo.get_by_id(GroceryList, id=id)
     return groceries
 
 
@@ -78,7 +76,7 @@ def update_list(
     repository: type[Repository] = SQLRepository,
 ) -> GroceryList:
     with repository() as repo:
-        grocery_list = repo.get(GroceryList, id=id)
+        grocery_list = repo.get_by_id(GroceryList, id=id)
         grocery_list.name = name
         repo.save()
     return grocery_list
@@ -86,6 +84,6 @@ def update_list(
 
 def delete_list(id: UUID, repository: type[Repository] = SQLRepository):
     with repository() as repo:
-        grocery_list = repo.get(GroceryList, id=id)
+        grocery_list = repo.get_by_id(GroceryList, id=id)
         repo.delete(grocery_list)
         repo.save()

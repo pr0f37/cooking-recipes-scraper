@@ -34,7 +34,7 @@ async def index():
 @router.post("/recipes/scrape")
 async def url_validate(url: Annotated[str, Form()] = ""):
     try:
-        _ = Url(url=url)
+        _ = Url(url=url)  # type: ignore
         return Response(content="URL OK!")
     except ValidationError as ex:
         return Response(content=", ".join([er["msg"] for er in ex.errors()]))
@@ -84,7 +84,7 @@ async def new_list_html(
     url: Annotated[str, Form()] = "",
     name: Annotated[str, Form()] = "",
 ):
-    uat = UrlAndTitle(url=url, title=name)
+    uat = UrlAndTitle(url=url, title=name)  # type: ignore
 
     initialize_list(str(uat.url), uat.title)
     return RedirectResponse("/grocery_lists", status_code=HTTPStatus.SEE_OTHER)
@@ -143,7 +143,7 @@ async def add_recipe_to_list_view(request: Request, id: UUID):
 async def add_recipe_to_groceries_list_html(
     request: Request, id: UUID, url: Annotated[str, Form()] = ""
 ):
-    parsed_url = Url(url=url)
+    parsed_url = Url(url=url)  # type: ignore
     try:
         _ = update_list_add_recipe(str(parsed_url.url), id)
         return RedirectResponse(f"/grocery_lists/{id}", status_code=303)

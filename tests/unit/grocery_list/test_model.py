@@ -1,4 +1,5 @@
 from copy import copy
+from uuid import UUID
 
 import pytest
 
@@ -13,6 +14,14 @@ from cr_scraper.grocery_list.model import GroceryList, GroceryListElement, Unit
 def test_create_empty_list():
     groceries = GroceryList()
     assert groceries.groceries == []
+    assert groceries.name is None
+    assert isinstance(groceries.id, UUID)
+
+
+def test_created_lists_differ():
+    groceries1 = GroceryList()
+    groceries2 = GroceryList()
+    assert groceries1.id != groceries2.id
 
 
 def test_add_element():
@@ -70,6 +79,9 @@ def test_add_groceries_of_the_same_kind():
     assert (g + g).quantity == 2
     assert (g + g).unit == Unit.KG
     assert (g + g).id != g.id
+    id = g.id
+    g.add(g)
+    assert g.id == id
 
 
 def test_add_groceries_with_different_units():

@@ -116,8 +116,8 @@ from cr_scraper.grocery_list.model import GroceryList, GroceryListElement
 from cr_scraper.persistence.repository import SQLRepository
 
 with SQLRepository() as repo:
-    all_grocery_lists = repo.get(GroceryList)
-    groceries = repo.get(GroceryListElement)
+    all_grocery_lists = repo.get_all(GroceryList)
+    groceries = repo.get_all(GroceryListElement)
 
 for g_list in all_grocery_lists:  # type: ignore
     print(g_list)
