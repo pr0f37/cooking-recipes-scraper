@@ -1,11 +1,16 @@
 from typing import Annotated
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Request
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from cr_scraper.api.router import api, security, ui
 from cr_scraper.api.schema.model import User
-from cr_scraper.api.services.security import get_current_active_user, oauth2_scheme
+from cr_scraper.api.services.security import (
+    UnauthorizedUIError,
+    get_current_active_user,
+    oauth2_scheme,
+)
 
 app = FastAPI()
 app.include_router(api.router)
@@ -16,11 +21,19 @@ app.mount(
 )
 
 
+@app.exception_handler(UnauthorizedUIError)
+async def unauthorized_ui_user_handler(request: Request, ex: UnauthorizedUIError):
+    return RedirectResponse(f"/login?next={request.url.path}")
+
+
 @app.get("/users/me")
 async def read_users_me(
     current_user: Annotated[User, Depends(get_current_active_user)]
-):
-    return current_user
+) -> User:
+    try:
+        return current_user
+    except Exception:
+        pass
 
 
 @app.get("/items/")

@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
-from typing import Annotated
+from typing import Annotated, Dict
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Cookie, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -12,6 +12,7 @@ SECRET_KEY = "6c0f94d9009420305a45debe7f770d3411b1dac2bf1bd095dd7ada9221d6c915"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_cookie = OAuth2PasswordBearer(tokenUrl="cookie")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -34,14 +35,17 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def authenticate_user(
-    username: str, password: str, db=fake_users_db
-) -> UserInDB | bool:
-    user = get_user(username, db)
-    if not user:
-        return False
+class NotAuthenticatedError(Exception):
+    pass
+
+
+def authenticate_user(username: str, password: str, db=fake_users_db) -> UserInDB:
+    try:
+        user = get_user(username, db)
+    except KeyError:
+        raise NotAuthenticatedError
     if not verify_password(password, user.hashed_password):
-        return False
+        raise NotAuthenticatedError
     return user
 
 
@@ -56,10 +60,16 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 
 
 def get_user(username, db=fake_users_db):
-    if username in db:
-        user_dict = db[username]
-        return UserInDB(**user_dict)
-    return None
+    user_dict = db[username]
+    return UserInDB(**user_dict)
+
+
+def _get_current_user(token):
+    payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
+    username: str | None = payload.get("sub")
+    token_data = TokenData(username=username)
+    user = get_user(token_data.username)
+    return user
 
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
@@ -69,15 +79,8 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
-        username: str | None = payload.get("sub")
-        if not username:
-            raise credentials_exception
-        token_data = TokenData(username=username)
-    except JWTError:
-        raise credentials_exception
-    user = get_user(token_data.username)
-    if not user:
+        user = _get_current_user(token)
+    except (KeyError, JWTError):
         raise credentials_exception
     return user
 
@@ -90,3 +93,24 @@ async def get_current_active_user(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="inactive user"
         )
     return current_user
+
+
+async def get_current_active_user_auth_cookie(
+    token: Annotated[str | None, Cookie()] = None
+):
+    if not token:
+        raise UnauthorizedUIError
+    try:
+        current_user = _get_current_user(token)
+    except (KeyError, JWTError):
+        raise UnauthorizedUIError
+    if current_user.disabled:
+        raise UnauthorizedUIError
+    return current_user
+
+
+class UnauthorizedUIError(HTTPException):
+    def __init__(
+        self, status_code: int = 401, detail=None, headers: Dict[str, str] | None = None
+    ) -> None:
+        super().__init__(status_code, detail, headers)

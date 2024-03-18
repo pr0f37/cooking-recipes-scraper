@@ -1,0 +1,19 @@
+{% extends 'layout.html' %}
+{% block content %}
+<form>
+    <fieldset>
+        <legend>Login</legend>
+        <label for="username">Login</label>
+        <input id="username" type="text" name="username" />
+        <span class="error">{{ errors['login']}}</span>
+        <br>
+        <label for="password">Password</label>
+        <input id="password" type="password" name="password" />
+        <span class="error">{{ errors['password']}}</span>
+        <br>
+        <label for="remember">Remember me</label>
+        <input type="checkbox" id="remember" name="remember" />
+        <button hx-post="/cookie?next={{ next or ''}}" hx-target="body">Login</button>
+    </fieldset>
+</form>
+{% endblock %}

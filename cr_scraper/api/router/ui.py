@@ -3,7 +3,7 @@ from time import sleep
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Form, Header, HTTPException, Request, Response
+from fastapi import APIRouter, Depends, Form, Header, HTTPException, Request, Response
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import ValidationError
@@ -18,12 +18,15 @@ from cr_scraper.api.services.recipes import (
     update_list,
     update_list_add_recipe,
 )
+from cr_scraper.api.services.security import get_current_active_user_auth_cookie
 from cr_scraper.archiver import Archiver
 from cr_scraper.grocery_list.model import GroceryList
 from cr_scraper.persistence.repository import NotExistInRepositoryError
 
 templates = Jinja2Templates("cr_scraper/ui/templates")
-router = APIRouter(tags=["ui"])
+router = APIRouter(
+    tags=["ui"], dependencies=[Depends(get_current_active_user_auth_cookie)]
+)
 
 
 @router.get("/")
