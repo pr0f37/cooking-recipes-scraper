@@ -49,6 +49,6 @@ class LidlComponents(RecipeComponents):
         name, quantity_unit = ingredient.split("-")
         quantity, unit = quantity_unit.strip().split(" ")
         name = name.strip()
-        quantity = float(quantity.strip())
+        quantity = float(quantity.strip().replace(",", "."))
         unit = unit.strip()
         return name, quantity, unit
