@@ -2,18 +2,32 @@
 {% block content %}
 <form>
     <fieldset>
-        <legend>Login</legend>
-        <label for="username">Login</label>
+        <legend>Login to Recipes Scraper</legend>
+        {% if errors|length > 0 %}
+        <div class="box bad">
+            {% for error in errors %}
+            <p>{{error}}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% if success %}
+        <div class="box ok">
+            <p>{{success}}</p>
+        </div>
+        {% endif %}
+        <label for="username">Username</label>
         <input id="username" type="text" name="username" />
-        <span class="error">{{ errors['login']}}</span>
         <br>
         <label for="password">Password</label>
         <input id="password" type="password" name="password" />
-        <span class="error">{{ errors['password']}}</span>
+        <span class="text error">{{ errors['password']}}</span>
         <br>
-        <label for="remember">Remember me</label>
-        <input type="checkbox" id="remember" name="remember" />
+        <label for="remember">
+            <input type="checkbox" id="remember" name="remember" />
+            Remember me</label>
+        <br>
         <button hx-post="/cookie?next={{ next or ''}}" hx-target="body">Login</button>
+        <button hx-post="/register?next={{ next or ''}}" hx-target="body">Create account</button>
     </fieldset>
 </form>
 {% endblock %}

@@ -35,8 +35,24 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-class NotAuthenticatedError(Exception):
-    pass
+def create_user(username: str, password: str, db=fake_users_db) -> UserInDB:
+    hashed_password = get_password_hash(password)
+    db[username] = {
+        "username": username,
+        "full_name": "John Doe",
+        "email": "johndoe@example.com",
+        "hashed_password": hashed_password,
+        "disabled": False,
+    }
+    return UserInDB(**db[username])
+
+
+def can_create_user(username: str, db=fake_users_db) -> bool:
+    try:
+        _ = get_user(username, db)
+    except KeyError:
+        return True
+    return False
 
 
 def authenticate_user(username: str, password: str, db=fake_users_db) -> UserInDB:
@@ -73,7 +89,7 @@ def _get_current_user(token):
 
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
-    credentials_exception = HTTPException(
+    credentials_exception = NotAuthenticatedError(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
@@ -99,18 +115,26 @@ async def get_current_active_user_auth_cookie(
     token: Annotated[str | None, Cookie()] = None
 ):
     if not token:
-        raise UnauthorizedUIError
+        raise NotAuthenticatedError
     try:
         current_user = _get_current_user(token)
     except (KeyError, JWTError):
-        raise UnauthorizedUIError
+        raise NotAuthenticatedError
     if current_user.disabled:
-        raise UnauthorizedUIError
+        raise DisabledUserError
     return current_user
 
 
-class UnauthorizedUIError(HTTPException):
+class NotAuthorizedError(HTTPException):
     def __init__(
         self, status_code: int = 401, detail=None, headers: Dict[str, str] | None = None
     ) -> None:
         super().__init__(status_code, detail, headers)
+
+
+class NotAuthenticatedError(NotAuthorizedError):
+    pass
+
+
+class DisabledUserError(NotAuthorizedError):
+    pass

@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from time import sleep
 from typing import Annotated
 from uuid import UUID
 
@@ -52,7 +51,6 @@ async def show_grocery_lists(
 ):
     errors = {}
     if q:
-        sleep(2)
         grocery_lists = search_for_grocery_list(list_name=q)
         if hx_trigger == "search":
             return templates.TemplateResponse(
