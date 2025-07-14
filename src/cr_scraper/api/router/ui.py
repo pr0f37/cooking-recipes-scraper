@@ -22,7 +22,7 @@ from cr_scraper.archiver import Archiver
 from cr_scraper.grocery_list.model import GroceryList
 from cr_scraper.persistence.repository import NotExistInRepositoryError
 
-templates = Jinja2Templates("cr_scraper/ui/templates")
+templates = Jinja2Templates("src/cr_scraper/ui/templates")
 router = APIRouter(
     tags=["ui"], dependencies=[Depends(get_current_active_user_auth_cookie)]
 )
@@ -219,7 +219,7 @@ async def delete_grocery_list_html(
 
 @router.delete("/grocery_lists")
 async def delete_all_grocery_lists_html(
-    selected_list_ids: Annotated[list[UUID], Form()]
+    selected_list_ids: Annotated[list[UUID], Form()],
 ):
     for id in selected_list_ids:
         delete_list(id)

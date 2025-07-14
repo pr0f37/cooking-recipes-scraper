@@ -31,5 +31,4 @@
 **/secrets.dev.yaml
 **/values.dev.yaml
 **/.github
-LICENSE
-README.md
+**/.venv

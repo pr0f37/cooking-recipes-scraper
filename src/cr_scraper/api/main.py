@@ -13,7 +13,9 @@ app.include_router(api.router)
 app.include_router(ui.router)
 app.include_router(security.router)
 app.mount(
-    "/static", StaticFiles(directory="cr_scraper/ui/templates/static"), name="static"
+    "/static",
+    StaticFiles(directory="src/cr_scraper/ui/templates/static"),
+    name="static",
 )
 
 

@@ -16,7 +16,7 @@ from cr_scraper.api.services.security import (
     create_user,
 )
 
-templates = Jinja2Templates("cr_scraper/ui/templates")
+templates = Jinja2Templates("src/cr_scraper/ui/templates")
 
 router = APIRouter(tags=["sec"])
 
