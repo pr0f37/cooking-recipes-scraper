@@ -21,17 +21,17 @@ jobs:
       - uses: actions/checkout@v3
       - name: Check code formatting with Black
         run: |
-          docker-compose up --exit-code-from format format
+          docker compose up --exit-code-from format format
           exit $?
       - name: Lint with flake8
         if: success() || failure() # always run even if the previous step fails
         run: |
-          docker-compose up --exit-code-from lint lint
+          docker compose up --exit-code-from lint lint
           exit $?
       - name: Test with pytest
         if: success() || failure()
         run: |
-          docker-compose up --exit-code-from tests tests
+          docker compose up --exit-code-from tests tests
           exit $?
       - name: Test database migration
         if: success() || failure()
