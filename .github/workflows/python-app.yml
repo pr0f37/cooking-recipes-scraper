@@ -36,7 +36,7 @@ jobs:
       - name: Test database migration
         if: success() || failure()
         run: |
-          docker-compose up --exit-code-from db_migration db_migration
+          docker compose up --exit-code-from db_migration db_migration
           exit $?
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v4
