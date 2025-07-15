@@ -34,7 +34,8 @@ class LidlComponents(RecipeComponents):
 
     def get_ingredients(self) -> list[tuple[str, float, str]]:
         ingredients = self._get_details().find(  # type: ignore
-            "div", class_="skladniki"  # type: ignore
+            "div",
+            class_="skladniki",  # type: ignore
         )
         if isinstance(ingredients, Tag):
             return [
