@@ -13,6 +13,8 @@ services:
         condition: service_started
     environment:
       - DB_HOST=db
+    tty: true
+    stdin_open: true
   db:
     image: postgres
     restart: always
