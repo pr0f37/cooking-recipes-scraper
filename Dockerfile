@@ -57,6 +57,7 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 COPY tests tests
 COPY src src
+COPY pytest.ini .
 COPY --chmod=755 entrypoint.tests.sh .
 COPY --chmod=755 entrypoint.format.sh .
 COPY --chmod=755 entrypoint.lint.sh .

@@ -36,8 +36,12 @@ UNIT_CONVERSION = {
 
 
 @dataclass
-class GroceryListElement:
+class DBModel:
     id: UUID
+
+
+@dataclass
+class GroceryListElement(DBModel):
     name: str
     quantity: float
     unit: str
@@ -93,8 +97,7 @@ class GroceryListElement:
 
 
 @dataclass
-class GroceryList:
-    id: UUID
+class GroceryList(DBModel):
     name: str | None = None
     groceries: list[GroceryListElement] = field(default_factory=list)
 
