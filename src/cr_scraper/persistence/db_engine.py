@@ -7,7 +7,7 @@ DB_PORT = os.getenv("DB_PORT", "5432")
 DB_NAME = os.getenv("DB_NAME", "cr-scraper")
 DB_USER = os.getenv("DB_USER", "postgres")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
-DIALECT = "postgresql+psycopg2"
+DIALECT = "postgresql+psycopg"
 
 
 class DBEngine:
@@ -30,8 +30,9 @@ class DBEngine:
         db_name: str = DB_NAME,
         db_user: str = DB_USER,
         db_password: str = DB_PASSWORD,
+        dialect: str = DIALECT,
     ) -> str:
-        return f"{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+        return f"{dialect}://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
 
 
 engine = DBEngine.init()

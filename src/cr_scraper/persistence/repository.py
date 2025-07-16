@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from contextlib import ContextDecorator
-from typing import Self
+from typing import Self, Type, TypeVar
 from uuid import UUID
 
 from sqlalchemy import Engine, select
@@ -8,6 +8,9 @@ from sqlalchemy.orm import Session, registry
 
 from cr_scraper.persistence.db_engine import engine
 from cr_scraper.persistence.mapper import mapper_registry
+from cr_scraper.grocery_list.model import DBModel
+
+T = TypeVar("T", bound=DBModel)
 
 
 class Repository(ABC, ContextDecorator):
@@ -63,11 +66,11 @@ class SQLRepository(Repository):
         self.session.close()
         return False
 
-    def get_all(self, model) -> list:
+    def get_all(self, model: Type[T]) -> list[T]:
         return [elem for elem in self.session.scalars(select(model)).all()]
 
-    def get_by_id(self, model, id: UUID):
-        db_model = self.session.scalar(select(model).where(model.id == id))
+    def get_by_id(self, model: Type[T], id: UUID) -> T:
+        db_model = self.session.get(model, id)
         if db_model is None:
             raise NotExistInRepositoryError
         return db_model

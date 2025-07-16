@@ -15,7 +15,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 # %%
 engine = create_engine(
-    "postgresql+psycopg2://postgres:postgres@0.0.0.0:5432/cr-scraper", echo=True
+    "postgresql+psycopg://postgres:postgres@0.0.0.0:5432/cr-scraper", echo=True
 )
 # %%
 
@@ -96,7 +96,7 @@ from cr_scraper.persistence.mapper import mapper_registry
 from cr_scraper.persistence.model import metadata_obj
 
 engine = create_engine(
-    "postgresql+psycopg2://postgres:postgres@0.0.0.0:5432/cr-scraper", echo=True
+    "postgresql+psycopg://postgres:postgres@0.0.0.0:5432/cr-scraper", echo=True
 )
 
 metadata_obj.create_all(engine, checkfirst=True)
