@@ -4,7 +4,7 @@ from typing import Annotated, Dict
 from fastapi import Cookie, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+import bcrypt
 
 from cr_scraper.api.schema.model import TokenData, User, UserInDB
 
@@ -13,8 +13,7 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 oauth2_cookie = OAuth2PasswordBearer(tokenUrl="cookie")
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+ENCODING = "utf-8"
 
 fake_users_db = {
     "johndoe": {
@@ -27,12 +26,14 @@ fake_users_db = {
 }
 
 
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return bcrypt.checkpw(
+        plain_password.encode(ENCODING), hashed_password.encode(ENCODING)
+    )
 
 
-def get_password_hash(password):
-    return pwd_context.hash(password)
+def get_password_hash(password: str) -> str:
+    return bcrypt.hashpw(password.encode(ENCODING), bcrypt.gensalt()).decode(ENCODING)
 
 
 def create_user(username: str, password: str, db=fake_users_db) -> UserInDB:
@@ -102,7 +103,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
 
 
 async def get_current_active_user(
-    current_user: Annotated[User, Depends(get_current_user)]
+    current_user: Annotated[User, Depends(get_current_user)],
 ):
     if current_user.disabled:
         raise HTTPException(
@@ -112,7 +113,7 @@ async def get_current_active_user(
 
 
 async def get_current_active_user_auth_cookie(
-    token: Annotated[str | None, Cookie()] = None
+    token: Annotated[str | None, Cookie()] = None,
 ):
     if not token:
         raise NotAuthenticatedError

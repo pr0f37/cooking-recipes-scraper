@@ -4,14 +4,17 @@ services:
   server:
     build:
       context: .
-      dockerfile: docker/dev/Dockerfile
     ports:
       - 8000:8000
     depends_on:
       db:
         condition: service_healthy
+      db_migration:
+        condition: service_started
     environment:
       - DB_HOST=db
+    tty: true
+    stdin_open: true
   db:
     image: postgres
     restart: always
@@ -31,5 +34,35 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+  db_migration:
+    build:
+      context: .
+      target: db_migration
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_HOST=db
+# ===============================
+# tests, formatting and linting
+# ===============================
+  tests:
+    build:
+      context: .
+      target: tests_lint_format
+    volumes:
+      - ./test_results:/app/test_results
+    entrypoint: ./entrypoint.tests.sh
+  format:
+    build:
+      context: .
+      target: tests_lint_format
+    entrypoint: ./entrypoint.format.sh
+  lint:
+    build:
+      context: .
+      target: tests_lint_format
+    entrypoint: ./entrypoint.lint.sh
 volumes:
   db-data:
+    driver: local

@@ -3,6 +3,7 @@ The following code maps business domain class objects to ORM table classes with
 imperative mapper registry. Source:
 https://docs.sqlalchemy.org/en/20/orm/dataclasses.html#mapping-attrs-with-imperative-mapping
 """
+
 from sqlalchemy.orm import registry, relationship
 
 from cr_scraper.grocery_list.model import GroceryList, GroceryListElement
