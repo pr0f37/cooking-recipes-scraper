@@ -59,7 +59,7 @@ def run_migrations_online() -> None:
 
     """
     connectable = engine_from_config(
-        {"sqlalchemy.url": f"postgresql://{DBEngine.get_connection_string()}"},
+        {"sqlalchemy.url": f"{DBEngine.get_connection_string()}"},
         # config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
